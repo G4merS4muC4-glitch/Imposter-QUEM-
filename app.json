@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "Impostor Quem?",
+    "slug": "impostor-quem",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "impostor",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#EBEBEB",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.samue.impostorquem",
+      "infoPlist": {
+        "UIBackgroundModes": [],
+        "NSMotionUsageDescription": "Usa o acelerômetro pra inclinar os cards em 3D quando você gira o celular."
+      }
+    },
+    "android": {
+      "package": "com.samue.impostorquem",
+      "adaptiveIcon": {
+        "backgroundColor": "#AAEE00"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#EBEBEB",
+          "resizeMode": "contain"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

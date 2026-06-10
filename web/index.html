@@ -1,0 +1,3333 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#AAEE00" />
+<meta name="description" content="Party game de farejadores e mentirosos — um celular, vários jogadores, um impostor. Jogue offline, direto do navegador." />
+<title>IMPOSTOR QUEM? — Party Game</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Impostor" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   RESET + BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%;overflow-x:hidden}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{
+  font-family:'Nunito',system-ui,-apple-system,sans-serif;
+  background:#EBEBEB;
+  color:#1A1A1A;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+input{font-family:inherit;border:none;outline:none;background:none;color:inherit}
+:root{
+  --bg:#EBEBEB;
+  --accent:#AAEE00;
+  --accent-shadow:#7ab000;
+  --ink:#1A1A1A;
+  --danger:#E53935;
+  --danger-shadow:#8b1a17;
+  --success:#43A047;
+  --warning:#FFB300;
+  --shadow:#333;
+  --card-radius:24px;
+  --btn-radius:18px;
+}
+
+/* ============================================================
+   LAYOUT WRAPPER
+   ============================================================ */
+.app{
+  min-height:100vh;
+  min-height:100dvh;
+  max-width:430px;
+  margin:0 auto;
+  padding:16px 18px 28px;
+  position:relative;
+}
+.screen{display:none;animation:fadeInUp .3s ease both}
+.screen.active{display:block}
+
+/* ============================================================
+   COMMON COMPONENTS
+   ============================================================ */
+.h-row{display:flex;align-items:center;gap:10px}
+.spacer{flex:1}
+.center{text-align:center}
+.muted{color:#666;font-size:13px}
+.sticky-top{position:sticky;top:0;background:var(--bg);z-index:5;padding:8px 0 10px}
+
+/* Top bar */
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.logo-mini{
+  font-family:'Bebas Neue',sans-serif;
+  background:var(--accent);
+  color:#1a1a1a;
+  border:2px solid #1a1a1a;
+  box-shadow:3px 3px 0 #1a1a1a;
+  border-radius:10px;
+  padding:4px 10px 2px;
+  font-size:18px;
+  letter-spacing:1px;
+  line-height:1;
+}
+.icon-btn{
+  width:42px;height:42px;
+  border-radius:14px;
+  background:#fff;
+  border:2px solid #1a1a1a;
+  box-shadow:3px 3px 0 #1a1a1a;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:800;
+  transition:transform .08s;
+}
+.icon-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #1a1a1a}
+.icon-btn.danger{background:var(--danger);color:#fff;border-color:#1a1a1a}
+.icon-btn.ghost{background:#fff;color:#1a1a1a}
+.icon-btn[disabled]{opacity:.35;pointer-events:none}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-weight:900;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  padding:16px 22px;
+  border-radius:var(--btn-radius);
+  border:2.5px solid #1a1a1a;
+  background:#fff;
+  color:#1a1a1a;
+  box-shadow:4px 4px 0 #1a1a1a;
+  transition:transform .08s, box-shadow .08s;
+  font-size:16px;
+  width:100%;
+}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #1a1a1a}
+.btn.primary{background:var(--accent);color:#1a1a1a}
+.btn.dark{background:#1a1a1a;color:#fff}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.ghost{background:transparent;box-shadow:none;border:2px dashed #1a1a1a}
+.btn.sm{padding:10px 14px;font-size:13px;width:auto;border-radius:12px;box-shadow:3px 3px 0 #1a1a1a}
+.btn.pulse{animation:pulse 1.6s ease-in-out infinite}
+.btn[disabled]{opacity:.45;pointer-events:none}
+
+/* Section */
+.section{
+  background:#fff;
+  border:2.5px solid #1a1a1a;
+  border-radius:20px;
+  padding:14px 14px 16px;
+  margin-bottom:14px;
+  box-shadow:4px 4px 0 #1a1a1a;
+}
+.section h3{
+  font-family:'Bebas Neue',sans-serif;
+  letter-spacing:1px;
+  font-size:20px;
+  margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.section .hint{font-size:12px;color:#666;margin-bottom:8px}
+
+/* Badge / chip */
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 10px;
+  background:#fff;
+  border:2px solid #1a1a1a;
+  border-radius:999px;
+  font-weight:800;font-size:12px;
+  box-shadow:2px 2px 0 #1a1a1a;
+  animation:popIn .3s ease both;
+}
+.badge.accent{background:var(--accent)}
+.badge.dark{background:#1a1a1a;color:#fff}
+
+/* Toggle pill */
+.pill-group{
+  display:flex;
+  background:#f3f3f3;
+  border:2px solid #1a1a1a;
+  border-radius:14px;
+  padding:4px;
+  gap:4px;
+}
+.pill-group .pill{
+  flex:1;
+  text-align:center;
+  padding:10px 8px;
+  border-radius:10px;
+  font-weight:800;
+  font-size:13px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.pill-group .pill.active{background:#1a1a1a;color:#fff}
+
+/* Toggle on/off */
+.toggle{
+  display:inline-flex;align-items:center;
+  width:54px;height:30px;
+  background:#ccc;border-radius:999px;
+  border:2px solid #1a1a1a;
+  position:relative;
+  transition:background .2s;
+  cursor:pointer;
+}
+.toggle::after{
+  content:'';
+  position:absolute;top:1px;left:1px;
+  width:22px;height:22px;
+  background:#fff;border:2px solid #1a1a1a;border-radius:50%;
+  transition:transform .2s;
+}
+.toggle.on{background:var(--accent)}
+.toggle.on::after{transform:translateX(24px)}
+
+/* Counter */
+.counter{
+  display:flex;align-items:center;gap:14px;
+  justify-content:center;
+}
+.counter button{
+  width:42px;height:42px;border-radius:12px;
+  border:2px solid #1a1a1a;background:#fff;
+  font-weight:900;font-size:20px;
+  box-shadow:3px 3px 0 #1a1a1a;
+}
+.counter button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #1a1a1a}
+.counter .val{font-family:'Bebas Neue',sans-serif;font-size:34px;min-width:48px;text-align:center}
+
+/* ============================================================
+   HOME
+   ============================================================ */
+.home-wrap{
+  min-height:calc(100vh - 60px);
+  min-height:calc(100dvh - 60px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.bg-waves{
+  position:absolute;inset:0;z-index:-1;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(170,238,0,.35), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(170,238,0,.25), transparent 40%);
+  animation:bgFloat 9s ease-in-out infinite alternate;
+}
+.bg-waves::before,.bg-waves::after{
+  content:'';position:absolute;border-radius:50%;
+  border:2px dashed rgba(26,26,26,.08);
+}
+.bg-waves::before{width:520px;height:520px;top:-180px;left:-160px;animation:spin 40s linear infinite}
+.bg-waves::after{width:380px;height:380px;bottom:-120px;right:-120px;animation:spin 60s linear infinite reverse}
+.logo-stack{margin-bottom:24px;animation:popIn .5s ease both}
+.logo-stack .top{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:34px;letter-spacing:6px;
+  color:#1a1a1a;
+  background:#fff;
+  border:2px solid #1a1a1a;
+  box-shadow:3px 3px 0 #1a1a1a;
+  display:inline-block;
+  padding:4px 14px 2px;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+.logo-stack .big{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:96px;line-height:.85;letter-spacing:2px;
+  color:#1a1a1a;
+  background:var(--accent);
+  border:3px solid #1a1a1a;
+  box-shadow:8px 8px 0 #1a1a1a;
+  padding:14px 22px 8px;
+  border-radius:18px;
+  display:inline-block;
+  transform:rotate(-2deg);
+}
+.tagline{
+  margin-top:18px;font-weight:700;font-size:15px;color:#1a1a1a;
+  background:#fff;padding:8px 14px;border-radius:999px;
+  border:2px solid #1a1a1a;box-shadow:3px 3px 0 #1a1a1a;
+}
+.home-actions{margin-top:34px;width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px}
+.version{position:absolute;bottom:8px;right:12px;font-size:11px;color:#888;font-weight:700}
+
+/* ============================================================
+   SETUP
+   ============================================================ */
+.player-list{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.player-row{
+  display:flex;align-items:center;gap:10px;
+  background:#f7f7f7;
+  border:2px solid #1a1a1a;
+  border-radius:14px;
+  padding:8px 10px;
+  animation:popIn .25s ease both;
+}
+.player-chip{
+  width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  border:2px solid #1a1a1a;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:14px;
+}
+.player-name{
+  flex:1;font-weight:800;font-size:15px;
+  background:transparent;outline:none;border:none;
+  padding:4px 6px;border-radius:8px;
+  min-width:0;
+}
+.player-name:focus{background:#fff;box-shadow:inset 0 0 0 2px #1a1a1a}
+.player-remove{
+  width:30px;height:30px;border-radius:8px;
+  background:var(--danger);color:#fff;
+  border:2px solid #1a1a1a;
+  font-weight:900;
+}
+.add-player{
+  display:flex;gap:8px;margin-top:10px;
+}
+.add-player input{
+  flex:1;
+  background:#fff;border:2px solid #1a1a1a;
+  border-radius:12px;padding:10px 12px;
+  font-weight:700;font-size:14px;
+}
+.add-player .btn{width:auto;padding:10px 14px;font-size:14px;border-radius:12px;box-shadow:3px 3px 0 #1a1a1a}
+
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cat-card{
+  background:#fff;border:2px solid #1a1a1a;border-radius:14px;
+  padding:10px 8px;
+  font-weight:800;font-size:13px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  position:relative;
+  box-shadow:3px 3px 0 #1a1a1a;
+  text-align:center;
+  min-height:78px;justify-content:center;
+}
+.cat-card .em{font-size:22px}
+.cat-card .nm{line-height:1.1}
+.cat-card .tag{
+  position:absolute;top:4px;right:4px;
+  font-size:9px;background:var(--accent);
+  border:1.5px solid #1a1a1a;
+  padding:1px 5px;border-radius:6px;
+  font-weight:900;letter-spacing:.5px;
+}
+.cat-card.selected{background:var(--accent);transform:translate(2px,2px);box-shadow:1px 1px 0 #1a1a1a}
+.cat-actions{display:flex;gap:8px;margin-top:10px}
+
+.slider-wrap{display:flex;align-items:center;gap:10px;margin-top:8px}
+.slider-wrap input[type=range]{flex:1;accent-color:#1a1a1a}
+.slider-val{font-family:'Bebas Neue',sans-serif;font-size:24px;min-width:30px;text-align:center}
+
+/* ============================================================
+   CARD REVEAL SCREEN
+   ============================================================ */
+.dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:10px 0 14px}
+.dot{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid #1a1a1a;
+  background:#fff;
+  transition:transform .2s;
+}
+.dot.done{filter:saturate(.7) brightness(.95)}
+.dot.current{animation:pulseDot 1.2s ease-in-out infinite;transform:scale(1.3)}
+
+.player-banner{
+  display:flex;align-items:center;justify-content:center;
+  gap:8px;
+  padding:10px 16px;border-radius:14px;
+  border:2.5px solid #1a1a1a;
+  box-shadow:4px 4px 0 #1a1a1a;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:24px;letter-spacing:2px;
+  margin:0 auto 10px;
+  animation:popIn .35s ease both;
+}
+.sub-instr{text-align:center;font-size:13px;color:#444;margin-bottom:14px;font-weight:600}
+
+.card-stage{
+  perspective:1200px;
+  width:100%;max-width:300px;
+  aspect-ratio:3/4;
+  margin:0 auto;
+  user-select:none;-webkit-user-select:none;
+  touch-action:manipulation;
+}
+.card{
+  width:100%;height:100%;position:relative;
+  transform-style:preserve-3d;
+  transition:transform .55s cubic-bezier(.6,.2,.2,1);
+  border-radius:28px;
+}
+.card.flipped{transform:rotateY(180deg)}
+.card.shake{animation:shake .3s linear}
+.card-face{
+  position:absolute;inset:0;
+  border-radius:28px;
+  border:3px solid #1a1a1a;
+  box-shadow:6px 6px 0 #1a1a1a;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:18px;
+  overflow:hidden;
+  text-align:center;
+}
+.card-back{
+  background:linear-gradient(135deg, var(--card-bg, #FFD600), color-mix(in srgb, var(--card-bg,#FFD600) 70%, #fff));
+}
+.card-back .hand{font-size:64px;animation:bounceY 1.4s ease-in-out infinite}
+.card-back .lbl{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:26px;margin-top:14px;
+  letter-spacing:2px;
+  color:var(--card-text,#1a1a1a);
+}
+.card-back .sublbl{font-size:12px;font-weight:700;margin-top:6px;color:var(--card-text,#1a1a1a);opacity:.75}
+.hold-bar{position:absolute;bottom:0;left:0;height:6px;width:0%;background:#1a1a1a;transition:width .1s linear;border-bottom-left-radius:28px;border-bottom-right-radius:28px}
+.card-front{transform:rotateY(180deg);background:#fff}
+.card-front .cat-pill{margin-bottom:10px}
+.card-front .word{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:42px;letter-spacing:1.5px;line-height:1;
+  margin:6px 0 8px;
+  word-break:break-word;
+}
+.card-front .hint-txt{color:#666;font-size:13px;font-weight:700}
+.card-front .footer-txt{font-size:12px;color:#666;margin-top:12px;font-weight:700}
+.card-front.impostor{background:#fff}
+.card-front.impostor .imp-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:28px;color:var(--danger);
+  letter-spacing:2px;
+}
+.card-front.impostor .imp-icon{font-size:54px;animation:bounceY 1.2s ease-in-out infinite}
+.card-front.impostor .imp-foot{font-size:12px;color:#444;margin-top:10px;font-weight:700}
+
+.card-nav{display:flex;align-items:center;gap:10px;margin-top:18px}
+.card-nav .btn{flex:1}
+
+/* ============================================================
+   ROUND
+   ============================================================ */
+.round-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:40px;text-align:center;letter-spacing:2px;
+  margin:6px 0 14px;
+}
+.starter-card{
+  background:#fff;border:2.5px solid #1a1a1a;
+  box-shadow:4px 4px 0 #1a1a1a;border-radius:18px;
+  padding:14px;text-align:center;margin-bottom:14px;
+  animation:popIn .35s ease both;
+}
+.starter-card .who{
+  display:inline-block;padding:6px 14px;border-radius:999px;
+  border:2px solid #1a1a1a;box-shadow:3px 3px 0 #1a1a1a;
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;
+  margin:8px 0 6px;
+}
+.timer-ring{
+  width:200px;height:200px;margin:0 auto 12px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.timer-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.timer-ring .ring-bg{fill:none;stroke:#eee;stroke-width:10}
+.timer-ring .ring-fg{fill:none;stroke:var(--success);stroke-width:10;stroke-linecap:round;transition:stroke .4s}
+.timer-ring .time-txt{
+  position:absolute;font-family:'Bebas Neue',sans-serif;
+  font-size:50px;letter-spacing:1px;
+}
+.timer-ctrls{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+
+/* ============================================================
+   REVEAL FINAL
+   ============================================================ */
+.confetti-layer{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:20}
+.confetti-piece{
+  position:absolute;top:-20px;width:10px;height:14px;
+  animation:confetti 3s linear forwards;
+  border-radius:2px;
+}
+.reveal-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:42px;text-align:center;letter-spacing:2px;margin:8px 0 12px;
+}
+.reveal-card{
+  background:#fff;border:3px solid #1a1a1a;
+  box-shadow:6px 6px 0 #1a1a1a;border-radius:22px;
+  padding:18px;text-align:center;margin-bottom:14px;
+  animation:popIn .4s ease both;
+}
+.reveal-emoji{font-size:64px;animation:bounceY 1.2s ease-in-out infinite}
+.reveal-names{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;margin:8px 0 4px}
+.reveal-word-lbl{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-top:8px}
+.reveal-word{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1.5px;color:var(--accent-shadow)}
+.reveal-meta{font-size:13px;color:#444;margin-top:6px;font-weight:700}
+
+.scoreboard{
+  background:#fff;border:2.5px solid #1a1a1a;
+  box-shadow:4px 4px 0 #1a1a1a;border-radius:18px;
+  padding:14px;margin-bottom:14px;
+}
+.scoreboard h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:10px}
+.score-row{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;border-radius:12px;
+  background:#f7f7f7;border:2px solid #1a1a1a;
+  margin-bottom:6px;
+  animation:popIn .3s ease both;
+}
+.score-row .medal{font-size:20px;width:26px;text-align:center}
+.score-row .nm{flex:1;font-weight:800;font-size:14px}
+.score-row .pts{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;letter-spacing:1px;
+  background:var(--accent);border:2px solid #1a1a1a;
+  padding:2px 10px 0;border-radius:8px;box-shadow:2px 2px 0 #1a1a1a;
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.modal{
+  position:fixed;inset:0;z-index:50;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  display:none;
+  align-items:flex-end;justify-content:center;
+}
+.modal.open{display:flex;animation:fadeIn .2s ease both}
+.sheet{
+  width:100%;max-width:430px;
+  background:#fff;
+  border-top-left-radius:24px;border-top-right-radius:24px;
+  padding:14px 18px calc(20px + env(safe-area-inset-bottom));
+  border-top:3px solid #1a1a1a;
+  animation:slideUp .28s cubic-bezier(.2,.7,.3,1) both;
+  max-height:90vh;max-height:90dvh;overflow-y:auto;
+  touch-action:pan-y;
+}
+.sheet .grabber{
+  width:48px;height:5px;border-radius:5px;background:#ddd;
+  margin:0 auto 12px;
+}
+.sheet h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:28px;letter-spacing:1.5px;margin-bottom:10px;text-align:center;
+}
+.sheet p{font-size:14px;color:#333;margin-bottom:10px}
+.sheet .actions{display:flex;gap:10px;margin-top:14px}
+.sheet .actions .btn{flex:1}
+.how-step{
+  display:flex;align-items:center;gap:10px;padding:8px 10px;
+  background:#f7f7f7;border:2px solid #1a1a1a;border-radius:12px;
+  margin-bottom:8px;font-size:14px;font-weight:700;
+}
+.how-step .e{font-size:24px;flex-shrink:0}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+#toast-container{
+  position:fixed;left:0;right:0;top:calc(10px + env(safe-area-inset-top));
+  z-index:60;display:flex;flex-direction:column;align-items:center;gap:6px;
+  pointer-events:none;
+}
+.toast{
+  background:#1a1a1a;color:#fff;
+  border:2px solid #1a1a1a;
+  box-shadow:3px 3px 0 #555;
+  padding:10px 16px;border-radius:14px;
+  font-weight:800;font-size:13px;
+  animation:slideDown .25s ease both;
+  max-width:90%;
+}
+.toast.success{background:var(--success)}
+.toast.error{background:var(--danger)}
+.toast.warning{background:var(--warning);color:#1a1a1a}
+.toast.out{animation:fadeOut .25s ease forwards}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes slideDown{from{transform:translateY(-30px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes pulseDot{0%,100%{transform:scale(1.3);box-shadow:0 0 0 0 rgba(26,26,26,.4)}50%{transform:scale(1.45);box-shadow:0 0 0 6px rgba(26,26,26,0)}}
+@keyframes bounceY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes popIn{0%{transform:scale(0);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes bgFloat{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+@keyframes confetti{
+  0%{transform:translateY(0) rotate(0);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:.85}
+}
+
+/* small */
+@media (max-width:360px){
+  .logo-stack .big{font-size:80px}
+  .card-front .word{font-size:36px}
+}
+
+/* ============================================================
+   PWA / MOBILE FINE-TUNES
+   ============================================================ */
+html{background:#EBEBEB}
+/* divs interativas não herdam touch-action de button — evita double-tap zoom */
+.pill,.cat-card,.toggle,.dot{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+/* long-press no card não pode invocar callout/lupa no iOS */
+.card-stage{-webkit-touch-callout:none}
+/* trava o scroll do fundo enquanto um modal está aberto */
+html.modal-open, html.modal-open body{overflow:hidden;height:100%}
+.sheet{overscroll-behavior:contain}
+/* botão de remover jogador: 30px visual, 46px de área de toque */
+.player-remove{position:relative}
+.player-remove::after{content:'';position:absolute;inset:-8px}
+/* crédito na home */
+.credit{margin-top:18px;font-size:12px;color:#666;font-weight:700}
+.credit b{color:#1a1a1a}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+}
+
+/* ============================================================
+   MODOS ESPECIAIS (setup)
+   ============================================================ */
+.special-row{display:flex;align-items:center;gap:10px;padding:6px 0}
+.special-row .lbl{font-weight:900;font-size:14px}
+.special-row .hint{margin-bottom:0}
+.special-divider{height:2px;background:#eee;border-radius:2px;margin:8px 0}
+#spy-row{display:none;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:2px dashed #ddd}
+#spy-row.visible{display:flex}
+
+/* ============================================================
+   CARD — AGENTE DUPLO + ALIADOS (spy)
+   ============================================================ */
+.da-badge{
+  display:inline-block;background:var(--warning);
+  border:2px solid #1a1a1a;border-radius:10px;
+  padding:3px 12px;margin-top:8px;
+  font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;
+}
+.da-hint{color:#444;font-weight:800;font-size:12px;margin-top:6px}
+.da-foot{color:#666;font-weight:800;font-size:11px;margin-top:10px}
+.ally-box{
+  margin-top:10px;padding:8px 14px;background:#1a1a1a;border-radius:12px;
+  text-align:center;animation:popIn .3s ease both;
+}
+.ally-box .ally-lbl{color:var(--accent);font-weight:900;font-size:10px;letter-spacing:1.5px}
+.ally-box .ally-names{color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;margin-top:2px}
+
+/* ============================================================
+   VOTAÇÃO
+   ============================================================ */
+.vote-counter{
+  display:inline-block;margin:0 auto 14px;
+  padding:6px 14px;border-radius:999px;
+  border:2px solid #1a1a1a;background:var(--accent);
+  font-weight:900;font-size:12px;letter-spacing:.5px;text-transform:uppercase;
+}
+.vote-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.vote-cell{
+  border:2.5px solid #1a1a1a;border-radius:16px;
+  min-height:88px;padding:12px 10px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;box-shadow:3px 3px 0 #1a1a1a;
+  transition:transform .15s;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  cursor:pointer;
+}
+.vote-cell .num{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px}
+.vote-cell .nm{font-weight:900;font-size:13px;text-align:center;margin-top:2px}
+.vote-cell.picked{
+  border-color:var(--danger);border-width:3px;
+  transform:scale(1.04) rotate(-2deg);
+}
+.vote-cell .picked-badge{
+  display:none;
+  position:absolute;top:-8px;right:-6px;
+  width:28px;height:28px;border-radius:14px;
+  background:var(--danger);border:2.5px solid #1a1a1a;
+  color:#fff;font-weight:900;font-size:14px;
+  align-items:center;justify-content:center;
+}
+.vote-cell.picked .picked-badge{display:flex}
+
+/* resultado da votação no reveal */
+.vote-result{
+  border:2.5px solid #1a1a1a;border-radius:16px;
+  box-shadow:4px 4px 0 #1a1a1a;
+  padding:12px;text-align:center;margin-bottom:14px;
+  animation:popIn .35s ease both;
+}
+.vote-result.won{background:var(--success)}
+.vote-result.lost{background:var(--danger)}
+.vote-result .vr-lbl{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1.5px;color:#fff}
+.vote-result .vr-detail{font-weight:800;font-size:13px;color:#fff;margin-top:4px}
+
+/* DA no reveal */
+.da-reveal-box{
+  margin:8px auto;padding:6px 14px;
+  background:var(--warning);border:2px solid #1a1a1a;border-radius:12px;
+  display:inline-block;
+}
+.da-reveal-box .da-lbl{font-weight:900;font-size:11px;letter-spacing:1px}
+.da-reveal-box .da-nm{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px}
+
+/* coroa do líder */
+.score-row{position:relative}
+.crown{position:absolute;top:-12px;left:14px;font-size:16px;transform:rotate(-12deg);animation:bounceY 1.4s ease-in-out infinite}
+
+/* ============================================================
+   ESTATÍSTICAS
+   ============================================================ */
+.stats-summary{display:flex;gap:8px;margin-bottom:12px}
+.stats-chip{
+  flex:1;background:#f7f7f7;border:2px solid #1a1a1a;border-radius:12px;
+  padding:8px 4px;text-align:center;
+}
+.stats-chip .v{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px}
+.stats-chip .l{font-weight:900;font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:#666}
+.stats-highlight{
+  display:flex;align-items:center;gap:10px;
+  border:2px solid #1a1a1a;border-radius:14px;
+  padding:8px 10px;margin-bottom:8px;
+}
+.stats-highlight .e{font-size:26px}
+.stats-highlight .hl-lbl{font-weight:900;font-size:10px;letter-spacing:1px;text-transform:uppercase;opacity:.7}
+.stats-highlight .hl-nm{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px}
+.stats-highlight .hl-detail{
+  margin-left:auto;font-weight:800;font-size:12px;
+  background:rgba(255,255,255,.7);border:1.5px solid #1a1a1a;
+  padding:3px 8px;border-radius:8px;white-space:nowrap;
+}
+.stats-row{
+  display:flex;align-items:center;gap:10px;
+  background:#f7f7f7;border:2px solid #1a1a1a;border-radius:12px;
+  padding:8px 10px;margin-bottom:6px;
+}
+.stats-row .nm{font-weight:900;font-size:14px}
+.stats-row .detail{font-size:11px;color:#555;font-weight:700;margin-top:2px}
+
+/* ============================================================
+   SETTINGS (⚙)
+   ============================================================ */
+.settings-block{margin-bottom:16px}
+.settings-block h4{
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;
+  margin-bottom:8px;display:flex;align-items:center;gap:8px;
+}
+.settings-block .hint{font-size:12px;color:#666;margin-top:6px}
+.home-gear{
+  position:absolute;top:calc(8px + env(safe-area-inset-top));right:12px;z-index:5;
+}
+
+/* ============================================================
+   ONBOARDING (primeira vez)
+   ============================================================ */
+#onboarding{
+  position:fixed;inset:0;z-index:100;
+  background:var(--bg);
+  display:none;
+  flex-direction:column;
+  padding:calc(14px + env(safe-area-inset-top)) 24px calc(20px + env(safe-area-inset-bottom));
+}
+#onboarding.open{display:flex}
+.ob-skip{align-self:flex-end;font-weight:900;font-size:14px;color:#777;padding:6px}
+.ob-slide{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;animation:fadeInUp .3s ease both}
+.ob-slide.active{display:flex}
+.ob-emoji-card{
+  width:170px;height:170px;border-radius:32px;
+  border:3px solid #1a1a1a;box-shadow:6px 6px 0 #1a1a1a;
+  display:flex;align-items:center;justify-content:center;
+  font-size:92px;margin-bottom:26px;
+  transform:rotate(-3deg);
+  animation:popIn .45s ease both;
+}
+.ob-title{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:1px}
+.ob-sub{font-weight:900;font-size:13px;color:var(--accent-shadow);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+.ob-body{font-weight:600;font-size:15px;color:#444;margin-top:14px;line-height:1.45;max-width:320px}
+.ob-dots{display:flex;justify-content:center;gap:8px;margin-bottom:16px}
+.ob-dot{height:10px;width:10px;border-radius:5px;background:rgba(26,26,26,.25);transition:width .25s, background .25s}
+.ob-dot.active{width:28px;background:#1a1a1a}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ============================================================
+       SCREEN: HOME
+       ============================================================ -->
+  <section id="screen-home" class="screen active">
+    <div class="home-wrap">
+      <div class="bg-waves"></div>
+      <button class="icon-btn home-gear" data-action="open-settings" aria-label="Configurações">⚙</button>
+      <div class="logo-stack">
+        <div class="top">IMPOSTER</div><br>
+        <div class="big">QUEM?</div>
+      </div>
+      <div class="tagline">O jogo de farejadores e mentirosos</div>
+      <div class="home-actions">
+        <button class="btn primary pulse" data-action="go-setup">▶ JOGAR</button>
+        <button class="btn ghost" data-action="open-howto">COMO JOGAR</button>
+      </div>
+      <div class="credit">feito por <b>📷 @samukafilmaker</b></div>
+      <div class="version">v1.0</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SCREEN: SETUP
+       ============================================================ -->
+  <section id="screen-setup" class="screen">
+    <div class="topbar">
+      <span class="logo-mini">IMPOSTOR</span>
+      <span class="badge accent" id="player-count-badge">3 jogadores</span>
+      <div class="spacer"></div>
+      <button class="icon-btn" data-action="open-settings" aria-label="Configurações">⚙</button>
+      <button class="icon-btn" data-action="open-howto" aria-label="Como jogar">?</button>
+    </div>
+
+    <div class="section">
+      <h3>👥 Jogadores</h3>
+      <div class="hint">Mínimo 3, máximo 20. Toque no nome para editar.</div>
+      <div class="player-list" id="player-list"></div>
+      <div class="add-player">
+        <input id="new-player-input" type="text" placeholder="Nome do jogador" maxlength="14" autocomplete="off" />
+        <button class="btn dark" data-action="add-player">+ Adicionar</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>🕵️ Impostores</h3>
+      <div class="counter">
+        <button data-action="imp-dec">−</button>
+        <div class="val" id="imp-count">1</div>
+        <button data-action="imp-inc">+</button>
+      </div>
+      <div class="center muted" id="imp-label" style="margin-top:6px">1 IMPOSTOR</div>
+      <div id="spy-row">
+        <div style="flex:1">
+          <div class="lbl" style="font-weight:900;font-size:14px">🕵️🕵️ Modo Spy</div>
+          <div class="hint" style="margin-bottom:0">Os impostores se reconhecem (podem coordenar)</div>
+        </div>
+        <span class="toggle" id="spy-toggle"></span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>🎲 Modos especiais</h3>
+      <div class="special-row">
+        <div style="flex:1">
+          <div class="lbl">🎭 Agente Duplo</div>
+          <div class="hint">1 jogador vê a palavra mas conta como impostor</div>
+        </div>
+        <span class="toggle" id="da-toggle"></span>
+      </div>
+      <div class="special-divider"></div>
+      <div class="special-row">
+        <div style="flex:1">
+          <div class="lbl">🗳️ Votação no App</div>
+          <div class="hint">Grupo escolhe o impostor tocando no app (em vez de discussão livre)</div>
+        </div>
+        <span class="toggle" id="vote-toggle"></span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>⏱️ Timer de discussão
+        <div class="spacer"></div>
+        <span class="toggle" id="timer-toggle"></span>
+      </h3>
+      <div id="timer-slider-wrap" style="display:none">
+        <div class="slider-wrap">
+          <span>1m</span>
+          <input id="timer-slider" type="range" min="1" max="10" value="3" step="1" />
+          <span>10m</span>
+          <span class="slider-val" id="timer-slider-val">3</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>🎯 Dificuldade</h3>
+      <div class="pill-group" id="diff-pills">
+        <div class="pill" data-diff="easy">Fácil</div>
+        <div class="pill active" data-diff="normal">Normal</div>
+        <div class="pill" data-diff="hard">Difícil</div>
+      </div>
+      <div class="hint" id="diff-desc" style="margin-top:8px">Impostor recebe uma dica genérica.</div>
+    </div>
+
+    <div class="section">
+      <h3>📚 Categorias</h3>
+      <div class="cat-grid" id="cat-grid"></div>
+      <div class="cat-actions">
+        <button class="btn sm dark" data-action="cat-all">Selecionar todas</button>
+        <button class="btn sm ghost" data-action="cat-none">Limpar</button>
+      </div>
+    </div>
+
+    <button class="btn primary" data-action="start-game" style="margin-top:10px">▶ INICIAR JOGO</button>
+    <button class="btn ghost" data-action="go-home" style="margin-top:10px">← VOLTAR</button>
+  </section>
+
+  <!-- ============================================================
+       SCREEN: CARD REVEAL
+       ============================================================ -->
+  <section id="screen-card" class="screen">
+    <div class="topbar">
+      <span class="logo-mini">IMPOSTOR</span>
+      <div class="spacer"></div>
+      <button class="icon-btn danger" data-action="confirm-quit" aria-label="Sair">✕</button>
+    </div>
+
+    <div class="dots" id="progress-dots"></div>
+    <div class="player-banner" id="player-banner">JOGADOR</div>
+    <div class="sub-instr">Não mostre sua tela para os outros</div>
+
+    <div class="card-stage">
+      <div class="card" id="card">
+        <div class="card-face card-back" id="card-back">
+          <div class="hand">👆</div>
+          <div class="lbl">SEGURE PARA REVELAR</div>
+          <div class="sublbl">Mantenha o dedo no card</div>
+          <div class="hold-bar" id="hold-bar"></div>
+        </div>
+        <div class="card-face card-front" id="card-front">
+          <!-- Filled dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <div class="card-nav">
+      <button class="icon-btn" id="prev-player-btn" data-action="prev-player" aria-label="Anterior">◀</button>
+      <button class="btn primary" id="next-player-btn" data-action="next-player">PRÓXIMO JOGADOR ▶</button>
+    </div>
+    <button class="btn danger" data-action="reveal-impostor-confirm" style="margin-top:10px">🚨 REVELAR IMPOSTOR</button>
+  </section>
+
+  <!-- ============================================================
+       SCREEN: ROUND
+       ============================================================ -->
+  <section id="screen-round" class="screen">
+    <div class="topbar">
+      <span class="logo-mini">IMPOSTOR</span>
+      <div class="spacer"></div>
+      <button class="icon-btn danger" data-action="confirm-quit" aria-label="Sair">✕</button>
+    </div>
+
+    <h1 class="round-title">DISCUSSÃO!</h1>
+    <div class="starter-card">
+      <div class="muted">QUEM COMEÇA</div>
+      <div class="who" id="starter-name">—</div>
+      <div class="muted" style="font-size:12px">Descreva a palavra sem dizê-la. O impostor finge que sabe.</div>
+    </div>
+
+    <div id="timer-block" style="display:none">
+      <div class="timer-ring">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+          <circle class="ring-fg" id="ring-fg" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0"></circle>
+        </svg>
+        <div class="time-txt" id="time-txt">3:00</div>
+      </div>
+      <div class="timer-ctrls">
+        <button class="btn sm dark" data-action="timer-toggle" id="timer-toggle-btn">⏸ Pausar</button>
+        <button class="btn sm ghost" data-action="timer-reset">🔄 Resetar</button>
+      </div>
+    </div>
+
+    <button class="btn danger" id="round-reveal-btn" data-action="reveal-impostor-confirm">🚨 REVELAR IMPOSTOR</button>
+    <button class="btn ghost" data-action="go-setup" style="margin-top:10px">⚙ CONFIGURAÇÕES</button>
+  </section>
+
+  <!-- ============================================================
+       SCREEN: VOTAÇÃO
+       ============================================================ -->
+  <section id="screen-vote" class="screen">
+    <div class="topbar">
+      <span class="logo-mini">IMPOSTOR</span>
+      <div class="spacer"></div>
+      <button class="icon-btn danger" data-action="vote-cancel" aria-label="Cancelar">✕</button>
+    </div>
+
+    <h1 class="round-title">VOTAÇÃO</h1>
+    <div class="center muted" style="margin-bottom:10px;font-weight:700">Quem o grupo acha que é o impostor?</div>
+    <div class="center"><span class="vote-counter" id="vote-counter">0 de 1 selecionado</span></div>
+
+    <div class="vote-grid" id="vote-grid"></div>
+
+    <button class="btn ghost" id="vote-confirm-btn" data-action="vote-confirm" disabled>SELECIONE PARA VOTAR</button>
+  </section>
+
+  <!-- ============================================================
+       SCREEN: REVEAL FINAL
+       ============================================================ -->
+  <section id="screen-reveal" class="screen">
+    <div class="topbar">
+      <span class="logo-mini">IMPOSTOR</span>
+      <div class="spacer"></div>
+      <button class="icon-btn" data-action="go-home" aria-label="Home">⌂</button>
+    </div>
+
+    <h1 class="reveal-title">🚨 REVELAÇÃO!</h1>
+    <div class="reveal-card" id="reveal-card"></div>
+    <div id="vote-result-box" style="display:none"></div>
+
+    <div class="scoreboard">
+      <div class="h-row" style="margin-bottom:8px">
+        <h3 style="margin:0">🏆 PLACAR</h3>
+        <div class="spacer"></div>
+        <button class="btn sm dark" data-action="open-stats" style="margin-right:6px">📊 Stats</button>
+        <button class="btn sm ghost" data-action="confirm-reset-score">Zerar</button>
+      </div>
+      <div id="score-list"></div>
+    </div>
+
+    <button class="btn primary" data-action="new-round">🔁 NOVA RODADA</button>
+    <button class="btn ghost" data-action="go-setup" style="margin-top:10px">⚙ CONFIGURAÇÕES</button>
+  </section>
+
+</div><!-- /.app -->
+
+<!-- ============================================================
+     MODALS
+     ============================================================ -->
+<div class="modal" id="modal-howto">
+  <div class="sheet">
+    <div class="grabber"></div>
+    <h2>Como Jogar</h2>
+    <div class="how-step"><span class="e">📝</span><span>Configure jogadores e categorias.</span></div>
+    <div class="how-step"><span class="e">📱</span><span>Passe o celular para cada jogador.</span></div>
+    <div class="how-step"><span class="e">👆</span><span>Segure o card para ver sua palavra.</span></div>
+    <div class="how-step"><span class="e">🗣️</span><span>Discuta! Descreva sem falar a palavra.</span></div>
+    <div class="how-step"><span class="e">🕵️</span><span>Acuse quem você acha que é o impostor.</span></div>
+    <div class="how-step"><span class="e">🚨</span><span>Revele e veja se o grupo acertou!</span></div>
+    <button class="btn primary" data-action="close-modal">ENTENDI!</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-quit">
+  <div class="sheet">
+    <div class="grabber"></div>
+    <h2>Sair do jogo?</h2>
+    <p>O progresso atual será perdido. O placar permanece.</p>
+    <div class="actions">
+      <button class="btn ghost" data-action="close-modal">Cancelar</button>
+      <button class="btn danger" data-action="confirm-quit-yes">Sair</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-reveal-confirm">
+  <div class="sheet">
+    <div class="grabber"></div>
+    <h2>Revelar o impostor?</h2>
+    <p>A rodada será encerrada e a palavra será exibida.</p>
+    <div class="actions">
+      <button class="btn ghost" data-action="close-modal">Cancelar</button>
+      <button class="btn danger" data-action="reveal-impostor-yes">Revelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-correct">
+  <div class="sheet">
+    <div class="grabber"></div>
+    <h2>O grupo acertou?</h2>
+    <p>Vocês descobriram quem era o impostor antes da revelação?</p>
+    <div class="actions">
+      <button class="btn danger" data-action="correct-no">Não 😅</button>
+      <button class="btn primary" data-action="correct-yes">Sim! 🎯</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-reset-score">
+  <div class="sheet">
+    <div class="grabber"></div>
+    <h2>Zerar placar?</h2>
+    <p>Todas as pontuações da sessão serão apagadas.</p>
+    <div class="actions">
+      <button class="btn ghost" data-action="close-modal">Cancelar</button>
+      <button class="btn danger" data-action="reset-score-yes">Zerar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-vote-cancel">
+  <div class="sheet">
+    <div class="grabber"></div>
+    <h2>Cancelar votação?</h2>
+    <p>A rodada continua. Você volta pra discussão.</p>
+    <div class="actions">
+      <button class="btn ghost" data-action="close-modal">Continuar votando</button>
+      <button class="btn danger" data-action="vote-cancel-yes">Voltar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-settings">
+  <div class="sheet">
+    <div class="grabber"></div>
+    <h2>⚙ Configurações</h2>
+
+    <div class="settings-block">
+      <h4>🎮 Modo geral</h4>
+      <div class="pill-group" id="mode-pills">
+        <div class="pill active" data-mode="classic">Clássico</div>
+        <div class="pill" data-mode="silent">Silencioso</div>
+      </div>
+      <div class="hint">Silencioso desativa sons, música e vibração.</div>
+    </div>
+
+    <div class="settings-block">
+      <h4>🎵 Música de fundo
+        <div class="spacer"></div>
+        <span class="toggle" id="music-toggle"></span>
+      </h4>
+      <div class="hint">Loop ambiente que muda entre as telas (silenciado em modo silencioso).</div>
+    </div>
+
+    <div class="settings-block">
+      <h4>🎚️ Pacote de sons</h4>
+      <div class="pill-group" id="pack-pills">
+        <div class="pill active" data-pack="classic">Clássico</div>
+        <div class="pill" data-pack="retro">Retrô</div>
+        <div class="pill" data-pack="cinema">Cinema</div>
+        <div class="pill" data-pack="cyber">Cyber</div>
+      </div>
+      <div class="hint" id="pack-desc">Som polido padrão.</div>
+    </div>
+
+    <div class="settings-block" style="margin-bottom:6px">
+      <button class="btn sm ghost" data-action="replay-onboarding" style="width:100%">🎓 Rever apresentação</button>
+    </div>
+
+    <button class="btn primary" data-action="close-modal">FECHAR</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-stats">
+  <div class="sheet">
+    <div class="grabber"></div>
+    <h2>📊 Estatísticas</h2>
+    <div id="stats-content"></div>
+    <div class="actions">
+      <button class="btn ghost" data-action="reset-stats">Zerar estatísticas</button>
+      <button class="btn primary" data-action="close-modal">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING (primeira abertura) -->
+<div id="onboarding">
+  <button class="ob-skip" data-action="ob-skip">Pular</button>
+  <div class="ob-slide" data-ob="0">
+    <div class="ob-emoji-card" style="background:var(--accent)">🕵️</div>
+    <div class="ob-title">IMPOSTOR QUEM?</div>
+    <div class="ob-sub">Bem-vindo ao caos!</div>
+    <div class="ob-body">Um jogo de party pra grupos. Um celular, vários jogadores, uma palavra secreta — e alguém mentindo.</div>
+  </div>
+  <div class="ob-slide" data-ob="1">
+    <div class="ob-emoji-card" style="background:#FFD600">📱</div>
+    <div class="ob-title">PASSE O CELULAR</div>
+    <div class="ob-sub">Cada um vê em segredo</div>
+    <div class="ob-body">Segure o card por 1 segundo pra revelar sua palavra. Não mostre pros outros! O impostor não recebe a palavra.</div>
+  </div>
+  <div class="ob-slide" data-ob="2">
+    <div class="ob-emoji-card" style="background:#4FC3F7">🗣️</div>
+    <div class="ob-title">DESCREVA SEM DIZER</div>
+    <div class="ob-sub">Todos falam, todos desconfiam</div>
+    <div class="ob-body">Quem sabe a palavra a descreve indiretamente. O impostor finge que sabe. Achem o farsante!</div>
+  </div>
+  <div class="ob-slide" data-ob="3">
+    <div class="ob-emoji-card" style="background:#CE93D8">🎲</div>
+    <div class="ob-title">MODOS ESPECIAIS</div>
+    <div class="ob-sub">Vire o jogo de cabeça pra baixo</div>
+    <div class="ob-body">🎭 Agente Duplo, 🕵️🕵️ Spy, 🗳️ Votação, ⏱️ Timer. Mude tudo no Setup pra cada partida.</div>
+  </div>
+  <div class="ob-dots" id="ob-dots"></div>
+  <button class="btn primary" id="ob-next" data-action="ob-next">PRÓXIMO ▶</button>
+</div>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+<!-- CONFETTI LAYER -->
+<div class="confetti-layer" id="confetti-layer" style="display:none"></div>
+
+<script>
+'use strict';
+
+/* ============================================================
+   1) CONSTANTS
+   ============================================================ */
+const PLAYER_COLORS = [
+  // text sempre #1a1a1a: branco sobre estes pastéis dava contraste ~2-3:1 (ilegível sob sol)
+  { bg:'#FFD600', shadow:'#b89e00', text:'#1a1a1a', name:'Amarelo' },
+  { bg:'#FF6B6B', shadow:'#a03030', text:'#1a1a1a', name:'Vermelho' },
+  { bg:'#4FC3F7', shadow:'#1a6e99', text:'#1a1a1a', name:'Azul' },
+  { bg:'#81C784', shadow:'#2e6b30', text:'#1a1a1a', name:'Verde' },
+  { bg:'#CE93D8', shadow:'#7b3f8a', text:'#1a1a1a', name:'Roxo' },
+  { bg:'#FFB74D', shadow:'#9a5e00', text:'#1a1a1a', name:'Laranja' },
+  { bg:'#F06292', shadow:'#8f1a44', text:'#1a1a1a', name:'Rosa' },
+  { bg:'#4DB6AC', shadow:'#1a6b65', text:'#1a1a1a', name:'Teal' },
+  { bg:'#FFF176', shadow:'#b8a800', text:'#1a1a1a', name:'Limão' },
+  { bg:'#90CAF9', shadow:'#1a4a8a', text:'#1a1a1a', name:'Celeste' },
+  { bg:'#FFAB91', shadow:'#a03010', text:'#1a1a1a', name:'Salmão' },
+  { bg:'#B0BEC5', shadow:'#455A64', text:'#1a1a1a', name:'Prata' },
+];
+const IMP_EMOJIS = ['🕵️','🦹','🎭','👺','🤫'];
+
+/* ============================================================
+   WORD BANK — 15 categories × 20+ palavras
+   ============================================================ */
+const CATEGORIES = [
+  { id:"food", emoji:"🍕", name:"Comidas & Bebidas", words:[
+    {w:"Pizza",hint:"italiana clássica",hintHard:"redonda"},
+    {w:"Sushi",hint:"culinária japonesa",hintHard:"cru"},
+    {w:"Feijoada",hint:"prato típico do Brasil",hintHard:"preta"},
+    {w:"Hambúrguer",hint:"fast food",hintHard:"recheado"},
+    {w:"Lasanha",hint:"massa em camadas",hintHard:"molho"},
+    {w:"Brigadeiro",hint:"doce brasileiro",hintHard:"chocolate"},
+    {w:"Pão de Queijo",hint:"salgado mineiro",hintHard:"quentinho"},
+    {w:"Açaí",hint:"fruta amazônica",hintHard:"roxo"},
+    {w:"Coxinha",hint:"salgadinho",hintHard:"frita"},
+    {w:"Tacos",hint:"culinária mexicana",hintHard:"crocante"},
+    {w:"Sorvete",hint:"sobremesa gelada",hintHard:"derrete"},
+    {w:"Café",hint:"bebida quente",hintHard:"preto"},
+    {w:"Cerveja",hint:"bebida alcoólica",hintHard:"gelada"},
+    {w:"Caipirinha",hint:"drink brasileiro",hintHard:"verde"},
+    {w:"Churrasco",hint:"reunião de domingo",hintHard:"fumaça"},
+    {w:"Tapioca",hint:"café da manhã",hintHard:"branca"},
+    {w:"Macarrão",hint:"massa",hintHard:"comprido"},
+    {w:"Refrigerante",hint:"bebida doce",hintHard:"borbulhante"},
+    {w:"Salada",hint:"comida saudável",hintHard:"verde"},
+    {w:"Chocolate",hint:"doce",hintHard:"marrom"},
+    {w:"Pastel",hint:"feira",hintHard:"frito"},
+    {w:"Picanha",hint:"corte de carne",hintHard:"churrasco"},
+    {w:"Mousse",hint:"sobremesa aerada",hintHard:"fofo"},
+    {w:"Hot Dog",hint:"lanche",hintHard:"salsicha"},
+    {w:"Suco de Laranja",hint:"bebida natural",hintHard:"cítrico"},
+    {w:"Vinho",hint:"bebida alcoólica",hintHard:"tinto"},
+    {w:"Tofu",hint:"culinária asiática",hintHard:"branco"},
+    {w:"Quibe",hint:"culinária árabe",hintHard:"frito"},
+    {w:"Esfiha",hint:"culinária árabe",hintHard:"aberta"},
+    {w:"Cuscuz",hint:"café da manhã nordestino",hintHard:"amarelo"},
+    {w:"Doce de Leite",hint:"doce caramelizado",hintHard:"pastoso"},
+    {w:"Risoto",hint:"arroz cremoso",hintHard:"italiano"},
+  ]},
+  { id:"animals", emoji:"🦁", name:"Animais", words:[
+    {w:"Leão",hint:"felino selvagem",hintHard:"amarelo"},
+    {w:"Elefante",hint:"mamífero gigante",hintHard:"cinza"},
+    {w:"Tubarão",hint:"predador marinho",hintHard:"dentes"},
+    {w:"Águia",hint:"ave de rapina",hintHard:"voa alto"},
+    {w:"Cobra",hint:"réptil",hintHard:"rasteja"},
+    {w:"Tartaruga",hint:"animal lento",hintHard:"casco"},
+    {w:"Cachorro",hint:"animal de estimação",hintHard:"late"},
+    {w:"Gato",hint:"animal de estimação",hintHard:"mia"},
+    {w:"Cavalo",hint:"animal de monta",hintHard:"crina"},
+    {w:"Golfinho",hint:"mamífero aquático",hintHard:"inteligente"},
+    {w:"Pinguim",hint:"ave que não voa",hintHard:"gelo"},
+    {w:"Urso",hint:"mamífero grande",hintHard:"mel"},
+    {w:"Tigre",hint:"felino listrado",hintHard:"laranja"},
+    {w:"Macaco",hint:"primata",hintHard:"banana"},
+    {w:"Girafa",hint:"animal alto",hintHard:"pescoço"},
+    {w:"Zebra",hint:"savana africana",hintHard:"listras"},
+    {w:"Coelho",hint:"orelhudo",hintHard:"pula"},
+    {w:"Polvo",hint:"molusco marinho",hintHard:"oito"},
+    {w:"Aranha",hint:"aracnídeo",hintHard:"tece"},
+    {w:"Borboleta",hint:"inseto colorido",hintHard:"voa"},
+    {w:"Papagaio",hint:"ave falante",hintHard:"colorido"},
+    {w:"Capivara",hint:"roedor brasileiro",hintHard:"aquático"},
+    {w:"Onça",hint:"felino brasileiro",hintHard:"pintada"},
+    {w:"Lobo",hint:"canino selvagem",hintHard:"matilha"},
+    {w:"Raposa",hint:"canino esperto",hintHard:"avermelhada"},
+    {w:"Camelo",hint:"animal de deserto",hintHard:"corcova"},
+    {w:"Canguru",hint:"animal australiano",hintHard:"pula"},
+    {w:"Galinha",hint:"ave doméstica",hintHard:"ovo"},
+    {w:"Hipopótamo",hint:"mamífero africano",hintHard:"enorme"},
+    {w:"Rinoceronte",hint:"mamífero com chifre",hintHard:"chifre"},
+    {w:"Crocodilo",hint:"réptil predador",hintHard:"dentes"},
+    {w:"Caranguejo",hint:"crustáceo",hintHard:"pinças"},
+    {w:"Foca",hint:"mamífero aquático",hintHard:"ártico"},
+  ]},
+  { id:"sports", emoji:"⚽", name:"Esportes", words:[
+    {w:"Futebol",hint:"esporte mais popular",hintHard:"bola"},
+    {w:"Vôlei",hint:"esporte de quadra",hintHard:"rede alta"},
+    {w:"Basquete",hint:"cesta",hintHard:"quica"},
+    {w:"Tênis",hint:"raquete",hintHard:"amarela"},
+    {w:"Natação",hint:"aquático",hintHard:"molhado"},
+    {w:"Boxe",hint:"luta",hintHard:"luvas"},
+    {w:"Surfe",hint:"esporte de praia",hintHard:"onda"},
+    {w:"Skate",hint:"esporte urbano",hintHard:"rodinhas"},
+    {w:"Ciclismo",hint:"sobre duas rodas",hintHard:"pedal"},
+    {w:"Corrida",hint:"atletismo",hintHard:"rápido"},
+    {w:"Golfe",hint:"esporte de elite",hintHard:"taco"},
+    {w:"Beisebol",hint:"esporte americano",hintHard:"rebatedor"},
+    {w:"Handebol",hint:"esporte com as mãos",hintHard:"gol"},
+    {w:"Judô",hint:"arte marcial japonesa",hintHard:"kimono"},
+    {w:"Karatê",hint:"arte marcial",hintHard:"faixa"},
+    {w:"Ginástica",hint:"flexibilidade",hintHard:"salto"},
+    {w:"Patinação",hint:"no gelo ou rodas",hintHard:"deslizar"},
+    {w:"Vela",hint:"esporte náutico",hintHard:"vento"},
+    {w:"Escalada",hint:"esporte de altura",hintHard:"pedra"},
+    {w:"Rugby",hint:"esporte britânico",hintHard:"oval"},
+    {w:"Esgrima",hint:"duelo",hintHard:"espada"},
+    {w:"Polo Aquático",hint:"esporte em piscina",hintHard:"time na água"},
+    {w:"Tiro com Arco",hint:"esporte de precisão",hintHard:"flecha"},
+    {w:"Hipismo",hint:"esporte com cavalo",hintHard:"salto"},
+    {w:"Bocha",hint:"esporte de bolas",hintHard:"pontaria"},
+    {w:"Sinuca",hint:"esporte de mesa",hintHard:"taco"},
+    {w:"Triatlo",hint:"três esportes seguidos",hintHard:"resistência"},
+    {w:"Parkour",hint:"esporte urbano",hintHard:"salto"},
+    {w:"MMA",hint:"luta livre",hintHard:"octógono"},
+    {w:"Futsal",hint:"futebol de quadra",hintHard:"cinco jogadores"},
+    {w:"Snowboard",hint:"esporte de inverno",hintHard:"neve"},
+  ]},
+  { id:"jobs", emoji:"👔", name:"Profissões", words:[
+    {w:"Médico",hint:"área da saúde",hintHard:"jaleco"},
+    {w:"Professor",hint:"educação",hintHard:"quadro"},
+    {w:"Engenheiro",hint:"constrói",hintHard:"cálculos"},
+    {w:"Advogado",hint:"tribunal",hintHard:"beca"},
+    {w:"Bombeiro",hint:"salva vidas",hintHard:"fogo"},
+    {w:"Policial",hint:"segurança",hintHard:"farda"},
+    {w:"Cozinheiro",hint:"cozinha",hintHard:"chapéu"},
+    {w:"Cantor",hint:"artista",hintHard:"voz"},
+    {w:"Ator",hint:"cinema",hintHard:"palco"},
+    {w:"Dentista",hint:"cuida dos dentes",hintHard:"broca"},
+    {w:"Piloto",hint:"aviação",hintHard:"avião"},
+    {w:"Programador",hint:"tecnologia",hintHard:"código"},
+    {w:"Jornalista",hint:"imprensa",hintHard:"notícia"},
+    {w:"Arquiteto",hint:"projetos",hintHard:"planta"},
+    {w:"Veterinário",hint:"cuida de animais",hintHard:"clínica"},
+    {w:"Pintor",hint:"artes",hintHard:"tinta"},
+    {w:"Escritor",hint:"livros",hintHard:"palavras"},
+    {w:"Fotógrafo",hint:"imagens",hintHard:"clique"},
+    {w:"Mecânico",hint:"oficina",hintHard:"graxa"},
+    {w:"Padeiro",hint:"padaria",hintHard:"forno"},
+    {w:"Astronauta",hint:"espaço",hintHard:"capacete"},
+    {w:"Marceneiro",hint:"trabalha com madeira",hintHard:"móveis"},
+    {w:"Eletricista",hint:"fios e energia",hintHard:"circuito"},
+    {w:"Encanador",hint:"consertos hidráulicos",hintHard:"tubos"},
+    {w:"Garçom",hint:"atende em restaurante",hintHard:"bandeja"},
+    {w:"Motorista",hint:"dirige",hintHard:"volante"},
+    {w:"Entregador",hint:"leva pedidos",hintHard:"mochila"},
+    {w:"Barbeiro",hint:"cuida do cabelo",hintHard:"tesoura"},
+    {w:"Personal Trainer",hint:"instrutor físico",hintHard:"academia"},
+    {w:"Designer",hint:"criação visual",hintHard:"arte digital"},
+    {w:"YouTuber",hint:"criador de vídeo",hintHard:"câmera"},
+  ]},
+  { id:"places", emoji:"🌍", name:"Países & Lugares", words:[
+    {w:"Brasil",hint:"país sul-americano",hintHard:"verde e amarelo"},
+    {w:"Japão",hint:"país asiático",hintHard:"sol nascente"},
+    {w:"França",hint:"país europeu",hintHard:"torre"},
+    {w:"Itália",hint:"país europeu",hintHard:"bota"},
+    {w:"Egito",hint:"norte da África",hintHard:"pirâmide"},
+    {w:"Argentina",hint:"vizinho do sul",hintHard:"tango"},
+    {w:"Estados Unidos",hint:"país americano",hintHard:"estrelas"},
+    {w:"China",hint:"país asiático",hintHard:"muralha"},
+    {w:"México",hint:"país americano",hintHard:"sombrero"},
+    {w:"Austrália",hint:"continente isolado",hintHard:"canguru"},
+    {w:"Canadá",hint:"norte do continente",hintHard:"folha"},
+    {w:"Espanha",hint:"europa ibérica",hintHard:"flamenco"},
+    {w:"Portugal",hint:"país europeu",hintHard:"fado"},
+    {w:"Alemanha",hint:"europa central",hintHard:"cerveja"},
+    {w:"Rio de Janeiro",hint:"cidade brasileira",hintHard:"cristo"},
+    {w:"Paris",hint:"capital europeia",hintHard:"romance"},
+    {w:"Nova York",hint:"cidade americana",hintHard:"arranha-céu"},
+    {w:"Amazônia",hint:"floresta",hintHard:"verde"},
+    {w:"Saara",hint:"deserto",hintHard:"areia"},
+    {w:"Himalaia",hint:"cordilheira",hintHard:"altíssimo"},
+    {w:"Veneza",hint:"cidade italiana",hintHard:"canais"},
+    {w:"Londres",hint:"capital inglesa",hintHard:"big ben"},
+    {w:"Tóquio",hint:"capital japonesa",hintHard:"mega cidade"},
+    {w:"São Paulo",hint:"maior cidade do Brasil",hintHard:"metrópole"},
+    {w:"Salvador",hint:"cidade baiana",hintHard:"pelourinho"},
+    {w:"Suíça",hint:"país europeu",hintHard:"chocolate"},
+    {w:"Coreia do Sul",hint:"país asiático",hintHard:"kpop"},
+    {w:"Índia",hint:"país asiático populoso",hintHard:"taj mahal"},
+    {w:"Rússia",hint:"maior país do mundo",hintHard:"gélido"},
+    {w:"Disney",hint:"parque temático",hintHard:"mickey"},
+    {w:"Machu Picchu",hint:"ruína inca",hintHard:"altitude"},
+  ]},
+  { id:"tech", emoji:"💻", name:"Tecnologia", words:[
+    {w:"Internet",hint:"rede mundial",hintHard:"conexão"},
+    {w:"Smartphone",hint:"celular moderno",hintHard:"touch"},
+    {w:"Computador",hint:"máquina de escritório",hintHard:"teclado"},
+    {w:"Google",hint:"gigante de busca",hintHard:"pesquisa"},
+    {w:"YouTube",hint:"plataforma de vídeo",hintHard:"vermelho"},
+    {w:"Instagram",hint:"rede social",hintHard:"foto"},
+    {w:"WhatsApp",hint:"mensagens",hintHard:"verde"},
+    {w:"TikTok",hint:"vídeos curtos",hintHard:"viral"},
+    {w:"Netflix",hint:"streaming",hintHard:"séries"},
+    {w:"Inteligência Artificial",hint:"tendência",hintHard:"aprende"},
+    {w:"Robô",hint:"máquina autônoma",hintHard:"metal"},
+    {w:"Bluetooth",hint:"conexão sem fio",hintHard:"curto alcance"},
+    {w:"Wi-Fi",hint:"rede sem fio",hintHard:"invisível"},
+    {w:"Bateria",hint:"energia portátil",hintHard:"acaba"},
+    {w:"Headphone",hint:"áudio pessoal",hintHard:"orelha"},
+    {w:"Mouse",hint:"periférico",hintHard:"clica"},
+    {w:"Teclado",hint:"periférico",hintHard:"teclas"},
+    {w:"Tablet",hint:"dispositivo móvel",hintHard:"tela grande"},
+    {w:"Drone",hint:"voador",hintHard:"remoto"},
+    {w:"Realidade Virtual",hint:"imersão",hintHard:"óculos"},
+    {w:"Carregador",hint:"energia",hintHard:"fio"},
+    {w:"Pix",hint:"pagamento brasileiro",hintHard:"instantâneo"},
+    {w:"ChatGPT",hint:"assistente IA",hintHard:"conversa"},
+    {w:"Spotify",hint:"streaming de música",hintHard:"verde"},
+    {w:"Twitch",hint:"plataforma de lives",hintHard:"roxo"},
+    {w:"Discord",hint:"chat por voz",hintHard:"gamers"},
+    {w:"GPS",hint:"localização",hintHard:"mapa"},
+    {w:"Webcam",hint:"câmera de PC",hintHard:"reunião"},
+    {w:"Mouse Gamer",hint:"periférico RGB",hintHard:"colorido"},
+    {w:"Pen Drive",hint:"armazenamento portátil",hintHard:"USB"},
+    {w:"Roteador",hint:"distribui internet",hintHard:"antenas"},
+  ]},
+  { id:"movies", emoji:"🎬", name:"Filmes & Séries", words:[
+    {w:"Vingadores",hint:"super-heróis",hintHard:"equipe"},
+    {w:"Harry Potter",hint:"bruxos",hintHard:"óculos"},
+    {w:"Senhor dos Anéis",hint:"fantasia épica",hintHard:"jornada"},
+    {w:"Star Wars",hint:"ficção espacial",hintHard:"sabres"},
+    {w:"Matrix",hint:"sci-fi",hintHard:"pílula"},
+    {w:"Titanic",hint:"romance trágico",hintHard:"navio"},
+    {w:"Frozen",hint:"animação",hintHard:"gelo"},
+    {w:"Toy Story",hint:"animação Pixar",hintHard:"brinquedos"},
+    {w:"Stranger Things",hint:"série Netflix",hintHard:"anos 80"},
+    {w:"Breaking Bad",hint:"série dramática",hintHard:"químico"},
+    {w:"Game of Thrones",hint:"série épica",hintHard:"tronos"},
+    {w:"Round 6",hint:"série coreana",hintHard:"jogos"},
+    {w:"The Office",hint:"série de comédia",hintHard:"escritório"},
+    {w:"Friends",hint:"sitcom",hintHard:"sofá"},
+    {w:"La Casa de Papel",hint:"série espanhola",hintHard:"máscara"},
+    {w:"Avatar",hint:"épico azul",hintHard:"pandora"},
+    {w:"Coringa",hint:"vilão DC",hintHard:"risada"},
+    {w:"Batman",hint:"morcego",hintHard:"noite"},
+    {w:"Homem-Aranha",hint:"super-herói",hintHard:"teia"},
+    {w:"Pantera Negra",hint:"super-herói",hintHard:"wakanda"},
+    {w:"Wandinha",hint:"série gótica",hintHard:"tranças"},
+    {w:"Shrek",hint:"animação verde",hintHard:"ogro"},
+    {w:"Madagascar",hint:"animação de zoo",hintHard:"leão"},
+    {w:"Os Simpsons",hint:"animação amarela",hintHard:"família"},
+    {w:"Bob Esponja",hint:"desenho aquático",hintHard:"amarelo"},
+    {w:"Dragon Ball",hint:"anime de lutas",hintHard:"cabelo amarelo"},
+    {w:"Naruto",hint:"anime ninja",hintHard:"faixa na testa"},
+    {w:"Pokémon",hint:"franquia japonesa",hintHard:"pegar todos"},
+    {w:"Senhor Anéis",hint:"épico fantasia",hintHard:"anel"},
+    {w:"Tropa de Elite",hint:"filme brasileiro",hintHard:"caveirão"},
+    {w:"Cidade de Deus",hint:"filme brasileiro",hintHard:"favela"},
+    {w:"Velozes e Furiosos",hint:"franquia de ação",hintHard:"carros"},
+  ]},
+  { id:"music", emoji:"🎵", name:"Música & Estilos", words:[
+    {w:"Samba",hint:"estilo brasileiro",hintHard:"carnaval"},
+    {w:"Funk",hint:"estilo brasileiro",hintHard:"batida"},
+    {w:"Sertanejo",hint:"estilo brasileiro",hintHard:"campo"},
+    {w:"Pagode",hint:"estilo brasileiro",hintHard:"roda"},
+    {w:"Rock",hint:"estilo internacional",hintHard:"guitarra"},
+    {w:"Pop",hint:"estilo popular",hintHard:"top"},
+    {w:"Hip Hop",hint:"cultura urbana",hintHard:"rima"},
+    {w:"Reggae",hint:"estilo jamaicano",hintHard:"relax"},
+    {w:"Jazz",hint:"estilo americano",hintHard:"improvisa"},
+    {w:"Bossa Nova",hint:"estilo brasileiro",hintHard:"suave"},
+    {w:"Forró",hint:"estilo nordestino",hintHard:"sanfona"},
+    {w:"Eletrônica",hint:"estilo digital",hintHard:"beat"},
+    {w:"Metal",hint:"estilo pesado",hintHard:"pesado"},
+    {w:"Country",hint:"estilo americano",hintHard:"cowboy"},
+    {w:"Reggaeton",hint:"estilo latino",hintHard:"dembow"},
+    {w:"Blues",hint:"estilo americano",hintHard:"melancolia"},
+    {w:"Clássica",hint:"estilo erudito",hintHard:"orquestra"},
+    {w:"Trap",hint:"subgênero hip hop",hintHard:"808"},
+    {w:"Indie",hint:"estilo alternativo",hintHard:"independente"},
+    {w:"Gospel",hint:"estilo religioso",hintHard:"fé"},
+    {w:"K-Pop",hint:"estilo coreano",hintHard:"idol"},
+    {w:"Punk",hint:"estilo rebelde",hintHard:"moicano"},
+    {w:"Disco",hint:"estilo dos anos 70",hintHard:"bola espelhada"},
+    {w:"Tecno",hint:"estilo eletrônico",hintHard:"rave"},
+    {w:"House",hint:"estilo eletrônico",hintHard:"four-on-floor"},
+    {w:"Soul",hint:"estilo americano",hintHard:"alma"},
+    {w:"R&B",hint:"estilo americano",hintHard:"romântico"},
+    {w:"Sertanejo Universitário",hint:"subgênero brasileiro",hintHard:"duplas"},
+    {w:"Brega",hint:"estilo nordestino",hintHard:"romântico"},
+    {w:"Lo-fi",hint:"estilo relaxante",hintHard:"estudo"},
+    {w:"Bolero",hint:"estilo latino",hintHard:"lento"},
+  ]},
+  { id:"internet", emoji:"😂", name:"Cultura da Internet", words:[
+    {w:"Meme",hint:"piada da internet",hintHard:"viral"},
+    {w:"Influencer",hint:"criador de conteúdo",hintHard:"seguidores"},
+    {w:"Live",hint:"transmissão ao vivo",hintHard:"agora"},
+    {w:"Hashtag",hint:"marcação",hintHard:"jogo da velha"},
+    {w:"Stories",hint:"24 horas",hintHard:"some"},
+    {w:"Reels",hint:"vídeo curto",hintHard:"rolar"},
+    {w:"Cancelamento",hint:"fenômeno social",hintHard:"turba"},
+    {w:"Cringe",hint:"sensação ruim",hintHard:"vergonha"},
+    {w:"Shippar",hint:"torcer por casal",hintHard:"amor"},
+    {w:"Trend",hint:"tendência viral",hintHard:"todo mundo"},
+    {w:"Spoiler",hint:"estraga surpresa",hintHard:"cuidado"},
+    {w:"Stalker",hint:"observador",hintHard:"olha tudo"},
+    {w:"Crush",hint:"paquera",hintHard:"coração"},
+    {w:"Mood",hint:"estado de espírito",hintHard:"humor"},
+    {w:"Hater",hint:"crítico",hintHard:"detesta"},
+    {w:"Fake News",hint:"desinformação",hintHard:"mentira"},
+    {w:"Emoji",hint:"caractere expressivo",hintHard:"rosto"},
+    {w:"GIF",hint:"imagem animada",hintHard:"loop"},
+    {w:"Streamer",hint:"cria conteúdo ao vivo",hintHard:"twitch"},
+    {w:"Vlog",hint:"diário em vídeo",hintHard:"rotina"},
+    {w:"Podcast",hint:"áudio sob demanda",hintHard:"conversa"},
+    {w:"Print",hint:"captura de tela",hintHard:"evidência"},
+    {w:"NFT",hint:"arte digital",hintHard:"blockchain"},
+    {w:"Cancelado",hint:"fenômeno social",hintHard:"exposto"},
+    {w:"Engajamento",hint:"métrica social",hintHard:"likes"},
+    {w:"Bot",hint:"conta automática",hintHard:"robô"},
+    {w:"Tag",hint:"marcar alguém",hintHard:"arroba"},
+    {w:"Filtro",hint:"efeito visual",hintHard:"rosto"},
+    {w:"Throwback",hint:"lembrança antiga",hintHard:"foto velha"},
+    {w:"OOTD",hint:"sigla de moda",hintHard:"look do dia"},
+    {w:"Unboxing",hint:"tipo de vídeo",hintHard:"caixa"},
+  ]},
+  { id:"hobbies", emoji:"🎯", name:"Hobbies & Atividades", words:[
+    {w:"Leitura",hint:"passatempo solitário",hintHard:"silêncio"},
+    {w:"Pescaria",hint:"paciência",hintHard:"água"},
+    {w:"Jardinagem",hint:"cuidar de plantas",hintHard:"terra"},
+    {w:"Fotografia",hint:"arte visual",hintHard:"instante"},
+    {w:"Pintura",hint:"arte visual",hintHard:"pincel"},
+    {w:"Tricô",hint:"artesanato",hintHard:"agulhas"},
+    {w:"Caminhada",hint:"exercício leve",hintHard:"passos"},
+    {w:"Yoga",hint:"prática corporal",hintHard:"tapete"},
+    {w:"Cozinhar",hint:"preparar comida",hintHard:"fogão"},
+    {w:"Videogame",hint:"entretenimento digital",hintHard:"controle"},
+    {w:"Xadrez",hint:"jogo de tabuleiro",hintHard:"rei"},
+    {w:"Cinema",hint:"sair com amigos",hintHard:"pipoca"},
+    {w:"Dançar",hint:"movimento ritmado",hintHard:"pista"},
+    {w:"Cantar",hint:"expressão vocal",hintHard:"voz"},
+    {w:"Camping",hint:"natureza",hintHard:"barraca"},
+    {w:"Origami",hint:"arte de dobrar",hintHard:"papel"},
+    {w:"Crossfit",hint:"treino intenso",hintHard:"peso"},
+    {w:"Karaokê",hint:"cantar sem profissão",hintHard:"microfone"},
+    {w:"Trilha",hint:"caminhada na mata",hintHard:"pé na estrada"},
+    {w:"Crochê",hint:"artesanato",hintHard:"fio"},
+    {w:"Maratona de séries",hint:"lazer",hintHard:"sofá"},
+    {w:"Bordado",hint:"artesanato",hintHard:"agulha"},
+    {w:"Cerâmica",hint:"arte com barro",hintHard:"roda"},
+    {w:"Astronomia",hint:"observar o céu",hintHard:"telescópio"},
+    {w:"Geocaching",hint:"caça ao tesouro",hintHard:"GPS"},
+    {w:"Mergulho",hint:"esporte aquático",hintHard:"cilindro"},
+    {w:"Escalada Indoor",hint:"esporte vertical",hintHard:"paredão"},
+    {w:"Modelismo",hint:"montar miniaturas",hintHard:"colar"},
+    {w:"Boardgames",hint:"jogos de tabuleiro",hintHard:"peças"},
+    {w:"Mecânica de Bike",hint:"manutenção",hintHard:"óleo"},
+    {w:"Caligrafia",hint:"escrita artística",hintHard:"pena"},
+  ]},
+  { id:"emotions", emoji:"😊", name:"Emoções & Sentimentos", words:[
+    {w:"Alegria",hint:"sentimento positivo",hintHard:"sorriso"},
+    {w:"Tristeza",hint:"sentimento negativo",hintHard:"lágrimas"},
+    {w:"Raiva",hint:"sentimento forte",hintHard:"rosto vermelho"},
+    {w:"Medo",hint:"sentimento de perigo",hintHard:"tremer"},
+    {w:"Amor",hint:"sentimento universal",hintHard:"coração"},
+    {w:"Ódio",hint:"sentimento oposto",hintHard:"rejeição"},
+    {w:"Saudade",hint:"sentimento brasileiro",hintHard:"distância"},
+    {w:"Inveja",hint:"sentimento incômodo",hintHard:"olhar"},
+    {w:"Vergonha",hint:"sentimento social",hintHard:"corar"},
+    {w:"Orgulho",hint:"sentimento próprio",hintHard:"peito estufado"},
+    {w:"Ansiedade",hint:"sentimento atual",hintHard:"preocupação"},
+    {w:"Calma",hint:"estado tranquilo",hintHard:"respirar"},
+    {w:"Surpresa",hint:"reação inesperada",hintHard:"olhos arregalados"},
+    {w:"Confiança",hint:"segurança",hintHard:"certeza"},
+    {w:"Esperança",hint:"expectativa positiva",hintHard:"futuro"},
+    {w:"Curiosidade",hint:"vontade de saber",hintHard:"perguntas"},
+    {w:"Gratidão",hint:"agradecimento",hintHard:"obrigado"},
+    {w:"Solidão",hint:"sentir-se só",hintHard:"sozinho"},
+    {w:"Coragem",hint:"enfrentar",hintHard:"sem medo"},
+    {w:"Euforia",hint:"alegria intensa",hintHard:"pular"},
+    {w:"Decepção",hint:"expectativa quebrada",hintHard:"frustração"},
+    {w:"Empolgação",hint:"sentimento intenso",hintHard:"animação"},
+    {w:"Frustração",hint:"sentimento negativo",hintHard:"travado"},
+    {w:"Compaixão",hint:"sentimento empático",hintHard:"doer pelo outro"},
+    {w:"Inspiração",hint:"momento criativo",hintHard:"ideia"},
+    {w:"Saudosismo",hint:"lembrança passada",hintHard:"antigamente"},
+    {w:"Estresse",hint:"tensão emocional",hintHard:"sobrecarga"},
+    {w:"Tédio",hint:"falta de interesse",hintHard:"sem graça"},
+    {w:"Vingança",hint:"devolver mal",hintHard:"olho por olho"},
+    {w:"Adoração",hint:"amor profundo",hintHard:"idolatrar"},
+    {w:"Despeito",hint:"mágoa de não ter",hintHard:"rancor"},
+  ]},
+  { id:"colors", emoji:"🎨", name:"Cores & Formas", words:[
+    {w:"Vermelho",hint:"cor primária",hintHard:"fogo"},
+    {w:"Azul",hint:"cor primária",hintHard:"céu"},
+    {w:"Amarelo",hint:"cor primária",hintHard:"sol"},
+    {w:"Verde",hint:"cor secundária",hintHard:"mato"},
+    {w:"Laranja",hint:"cor secundária",hintHard:"fruta"},
+    {w:"Roxo",hint:"cor secundária",hintHard:"uva"},
+    {w:"Rosa",hint:"cor terciária",hintHard:"flor"},
+    {w:"Preto",hint:"tom escuro",hintHard:"sombra"},
+    {w:"Branco",hint:"tom claro",hintHard:"neve"},
+    {w:"Marrom",hint:"tom terroso",hintHard:"chocolate"},
+    {w:"Cinza",hint:"tom neutro",hintHard:"pedra"},
+    {w:"Círculo",hint:"forma redonda",hintHard:"sem cantos"},
+    {w:"Quadrado",hint:"forma simétrica",hintHard:"lados iguais"},
+    {w:"Triângulo",hint:"três lados",hintHard:"pico"},
+    {w:"Retângulo",hint:"duas medidas",hintHard:"porta"},
+    {w:"Estrela",hint:"forma celestial",hintHard:"pontas"},
+    {w:"Coração",hint:"forma amorosa",hintHard:"amor"},
+    {w:"Losango",hint:"quadrado torto",hintHard:"pipa"},
+    {w:"Cubo",hint:"forma 3D",hintHard:"dado"},
+    {w:"Esfera",hint:"forma 3D",hintHard:"bola"},
+    {w:"Pirâmide",hint:"forma 3D",hintHard:"egito"},
+    {w:"Turquesa",hint:"tom azul-verde",hintHard:"pedra"},
+    {w:"Bege",hint:"tom claro neutro",hintHard:"café com leite"},
+    {w:"Dourado",hint:"tom metálico",hintHard:"ouro"},
+    {w:"Prateado",hint:"tom metálico",hintHard:"prata"},
+    {w:"Vinho",hint:"tom de vermelho",hintHard:"bordô"},
+    {w:"Pistache",hint:"tom verde claro",hintHard:"sorvete"},
+    {w:"Cilindro",hint:"forma 3D",hintHard:"rolinho"},
+    {w:"Cone",hint:"forma 3D",hintHard:"sorvete"},
+    {w:"Oval",hint:"forma alongada",hintHard:"esticada"},
+    {w:"Trapézio",hint:"forma geométrica",hintHard:"lados paralelos"},
+  ]},
+  { id:"objects", emoji:"🏠", name:"Objetos do Cotidiano", words:[
+    {w:"Chave",hint:"abre portas",hintHard:"metal"},
+    {w:"Carteira",hint:"guarda dinheiro",hintHard:"bolso"},
+    {w:"Escova de Dentes",hint:"higiene",hintHard:"cerdas"},
+    {w:"Travesseiro",hint:"dormir",hintHard:"cabeça"},
+    {w:"Espelho",hint:"reflete",hintHard:"imagem"},
+    {w:"Tesoura",hint:"corta",hintHard:"duas lâminas"},
+    {w:"Garfo",hint:"utensílio",hintHard:"dentes"},
+    {w:"Faca",hint:"utensílio",hintHard:"corta"},
+    {w:"Colher",hint:"utensílio",hintHard:"sopa"},
+    {w:"Guarda-Chuva",hint:"chuva",hintHard:"abre"},
+    {w:"Óculos",hint:"enxergar",hintHard:"lentes"},
+    {w:"Relógio",hint:"tempo",hintHard:"horas"},
+    {w:"Mochila",hint:"leva coisas",hintHard:"costas"},
+    {w:"Caderno",hint:"escola",hintHard:"folhas"},
+    {w:"Caneta",hint:"escrita",hintHard:"tinta"},
+    {w:"Sofá",hint:"sala",hintHard:"sentar"},
+    {w:"Geladeira",hint:"cozinha",hintHard:"gelada"},
+    {w:"Televisão",hint:"eletrônico",hintHard:"tela"},
+    {w:"Cama",hint:"quarto",hintHard:"dormir"},
+    {w:"Vassoura",hint:"limpeza",hintHard:"cabo longo"},
+    {w:"Ventilador",hint:"verão",hintHard:"pás"},
+    {w:"Micro-ondas",hint:"eletrodoméstico",hintHard:"esquenta"},
+    {w:"Liquidificador",hint:"cozinha",hintHard:"lâminas"},
+    {w:"Máquina de Lavar",hint:"área de serviço",hintHard:"roupas"},
+    {w:"Aspirador",hint:"limpeza",hintHard:"suga"},
+    {w:"Pente",hint:"cabelo",hintHard:"dentes"},
+    {w:"Carteira de Identidade",hint:"documento",hintHard:"foto"},
+    {w:"Celular",hint:"comunicação",hintHard:"na mão"},
+    {w:"Carregador de Celular",hint:"cabo",hintHard:"energia"},
+    {w:"Capacete",hint:"proteção",hintHard:"cabeça"},
+    {w:"Almofada",hint:"decoração",hintHard:"macio"},
+  ]},
+  { id:"nature", emoji:"🌿", name:"Natureza & Clima", words:[
+    {w:"Chuva",hint:"clima",hintHard:"molha"},
+    {w:"Sol",hint:"clima",hintHard:"amarelo"},
+    {w:"Neve",hint:"clima",hintHard:"branca"},
+    {w:"Vento",hint:"clima",hintHard:"invisível"},
+    {w:"Trovão",hint:"clima",hintHard:"barulho"},
+    {w:"Relâmpago",hint:"clima",hintHard:"luz"},
+    {w:"Arco-Íris",hint:"depois da chuva",hintHard:"cores"},
+    {w:"Nuvem",hint:"céu",hintHard:"branca"},
+    {w:"Praia",hint:"lugar",hintHard:"areia"},
+    {w:"Montanha",hint:"lugar",hintHard:"alto"},
+    {w:"Rio",hint:"água doce",hintHard:"corre"},
+    {w:"Oceano",hint:"água salgada",hintHard:"enorme"},
+    {w:"Floresta",hint:"verde",hintHard:"árvores"},
+    {w:"Deserto",hint:"seco",hintHard:"areia"},
+    {w:"Vulcão",hint:"natureza ardente",hintHard:"lava"},
+    {w:"Terremoto",hint:"desastre",hintHard:"tremor"},
+    {w:"Furacão",hint:"desastre",hintHard:"roda"},
+    {w:"Estrela",hint:"no céu",hintHard:"brilha"},
+    {w:"Lua",hint:"astro",hintHard:"noite"},
+    {w:"Cachoeira",hint:"água que cai",hintHard:"altura"},
+    {w:"Pôr do Sol",hint:"fim do dia",hintHard:"laranja"},
+    {w:"Geada",hint:"clima frio",hintHard:"cristais"},
+    {w:"Tornado",hint:"fenômeno climático",hintHard:"funil"},
+    {w:"Tsunami",hint:"desastre natural",hintHard:"onda gigante"},
+    {w:"Aurora Boreal",hint:"fenômeno luminoso",hintHard:"norte gelado"},
+    {w:"Lago",hint:"corpo d'água",hintHard:"parado"},
+    {w:"Caverna",hint:"formação rochosa",hintHard:"escura"},
+    {w:"Bosque",hint:"pequena floresta",hintHard:"árvores"},
+    {w:"Pântano",hint:"área alagada",hintHard:"lama"},
+    {w:"Iceberg",hint:"gelo enorme",hintHard:"oceano"},
+    {w:"Eclipse",hint:"fenômeno celeste",hintHard:"sol some"},
+  ]},
+  { id:"celebs", emoji:"⭐", name:"Celebridades & Famosos", words:[
+    {w:"Pelé",hint:"lenda do futebol",hintHard:"rei"},
+    {w:"Neymar",hint:"jogador brasileiro",hintHard:"craque"},
+    {w:"Messi",hint:"jogador argentino",hintHard:"baixinho"},
+    {w:"Cristiano Ronaldo",hint:"jogador português",hintHard:"siuuu"},
+    {w:"Anitta",hint:"cantora brasileira",hintHard:"envolvente"},
+    {w:"Ivete Sangalo",hint:"cantora baiana",hintHard:"axé"},
+    {w:"Xuxa",hint:"rainha dos baixinhos",hintHard:"loira"},
+    {w:"Silvio Santos",hint:"apresentador",hintHard:"auditório"},
+    {w:"Faustão",hint:"apresentador",hintHard:"olha ele aí"},
+    {w:"Beyoncé",hint:"cantora americana",hintHard:"diva"},
+    {w:"Taylor Swift",hint:"cantora americana",hintHard:"eras"},
+    {w:"Elon Musk",hint:"empresário",hintHard:"foguete"},
+    {w:"Bill Gates",hint:"empresário",hintHard:"windows"},
+    {w:"Steve Jobs",hint:"empresário",hintHard:"maçã"},
+    {w:"Einstein",hint:"cientista",hintHard:"cabelo branco"},
+    {w:"Michael Jackson",hint:"rei do pop",hintHard:"moonwalk"},
+    {w:"Madonna",hint:"rainha do pop",hintHard:"reinvenção"},
+    {w:"Senna",hint:"piloto brasileiro",hintHard:"capacete"},
+    {w:"Hebe Camargo",hint:"apresentadora",hintHard:"beijinho"},
+    {w:"Gugu Liberato",hint:"apresentador",hintHard:"domingo"},
+    {w:"Whindersson Nunes",hint:"humorista",hintHard:"piauí"},
+    {w:"Felipe Neto",hint:"youtuber",hintHard:"polêmico"},
+    {w:"Casimiro",hint:"streamer brasileiro",hintHard:"reage"},
+    {w:"Galvão Bueno",hint:"narrador",hintHard:"haja coração"},
+    {w:"Roberto Carlos",hint:"rei brasileiro",hintHard:"detalhes"},
+    {w:"Caetano Veloso",hint:"mpb",hintHard:"tropicália"},
+    {w:"Gisele Bündchen",hint:"modelo brasileira",hintHard:"passarela"},
+    {w:"Steven Spielberg",hint:"diretor",hintHard:"blockbusters"},
+    {w:"Cristina Kirchner",hint:"política argentina",hintHard:"ex-presidenta"},
+    {w:"Luva de Pedreiro",hint:"influencer",hintHard:"receba"},
+    {w:"MC Daniel",hint:"funkeiro",hintHard:"tabajara"},
+  ]},
+  { id:"videogames", emoji:"🎮", name:"Videogames", words:[
+    {w:"Minecraft",hint:"jogo de blocos",hintHard:"criação"},
+    {w:"Fortnite",hint:"battle royale",hintHard:"dança"},
+    {w:"Roblox",hint:"plataforma de jogos",hintHard:"crianças"},
+    {w:"Free Fire",hint:"battle royale mobile",hintHard:"tiro"},
+    {w:"Counter-Strike",hint:"fps clássico",hintHard:"bomba"},
+    {w:"League of Legends",hint:"moba",hintHard:"cinco contra cinco"},
+    {w:"Valorant",hint:"fps tático",hintHard:"agentes"},
+    {w:"GTA",hint:"mundo aberto",hintHard:"crime"},
+    {w:"FIFA",hint:"jogo de futebol",hintHard:"simulação"},
+    {w:"Call of Duty",hint:"fps militar",hintHard:"tiro"},
+    {w:"The Sims",hint:"simulação de vida",hintHard:"plumbob"},
+    {w:"Super Mario",hint:"plataforma",hintHard:"encanador"},
+    {w:"Zelda",hint:"aventura",hintHard:"link"},
+    {w:"Tetris",hint:"puzzle clássico",hintHard:"blocos"},
+    {w:"Pac-Man",hint:"fliperama",hintHard:"come bolinhas"},
+    {w:"Sonic",hint:"plataforma",hintHard:"ouriço azul"},
+    {w:"Street Fighter",hint:"luta clássica",hintHard:"hadouken"},
+    {w:"Tekken",hint:"luta 3D",hintHard:"combos"},
+    {w:"God of War",hint:"ação aventura",hintHard:"kratos"},
+    {w:"The Witcher",hint:"rpg",hintHard:"caçador"},
+    {w:"Among Us",hint:"social deduction",hintHard:"também tem impostor"},
+    {w:"Stardew Valley",hint:"fazendinha",hintHard:"plantar"},
+    {w:"Resident Evil",hint:"survival horror",hintHard:"zumbis"},
+    {w:"Mortal Kombat",hint:"luta sangrenta",hintHard:"fatality"},
+    {w:"Genshin Impact",hint:"rpg gacha",hintHard:"anime"},
+  ]},
+  { id:"brands", emoji:"🏷️", name:"Marcas Famosas", words:[
+    {w:"Coca-Cola",hint:"refrigerante",hintHard:"vermelho"},
+    {w:"Pepsi",hint:"refrigerante",hintHard:"azul"},
+    {w:"McDonald's",hint:"fast food",hintHard:"M dourado"},
+    {w:"Burger King",hint:"fast food",hintHard:"rei"},
+    {w:"Subway",hint:"sanduíches",hintHard:"metrô"},
+    {w:"Nike",hint:"esportivo",hintHard:"swoosh"},
+    {w:"Adidas",hint:"esportivo",hintHard:"três listras"},
+    {w:"Apple",hint:"eletrônicos",hintHard:"maçã"},
+    {w:"Samsung",hint:"eletrônicos",hintHard:"coreana"},
+    {w:"Sony",hint:"eletrônicos",hintHard:"playstation"},
+    {w:"Microsoft",hint:"tecnologia",hintHard:"janelinhas"},
+    {w:"Amazon",hint:"e-commerce",hintHard:"sorriso"},
+    {w:"Mercado Livre",hint:"e-commerce BR",hintHard:"amarelo"},
+    {w:"iFood",hint:"delivery brasileiro",hintHard:"vermelho"},
+    {w:"Uber",hint:"transporte",hintHard:"app"},
+    {w:"99",hint:"transporte BR",hintHard:"amarelo"},
+    {w:"Nubank",hint:"banco digital",hintHard:"roxo"},
+    {w:"Havaianas",hint:"sandália brasileira",hintHard:"praia"},
+    {w:"Bombril",hint:"palha de aço",hintHard:"utilidades"},
+    {w:"Brastemp",hint:"eletrodoméstico",hintHard:"tem que ser"},
+    {w:"Lego",hint:"brinquedo",hintHard:"encaixar"},
+    {w:"Nintendo",hint:"videogame",hintHard:"mario"},
+    {w:"Volkswagen",hint:"carro alemão",hintHard:"fusca"},
+    {w:"Toyota",hint:"carro japonês",hintHard:"corolla"},
+    {w:"Tesla",hint:"carro elétrico",hintHard:"musk"},
+  ]},
+  { id:"cars", emoji:"🚗", name:"Carros & Veículos", words:[
+    {w:"Fusca",hint:"carro clássico",hintHard:"redondinho"},
+    {w:"Gol",hint:"carro popular brasileiro",hintHard:"Volkswagen"},
+    {w:"Civic",hint:"sedan japonês",hintHard:"Honda"},
+    {w:"Corolla",hint:"sedan japonês",hintHard:"Toyota"},
+    {w:"Hilux",hint:"caminhonete",hintHard:"Toyota"},
+    {w:"Camaro",hint:"esportivo americano",hintHard:"amarelo do Bumblebee"},
+    {w:"Mustang",hint:"esportivo americano",hintHard:"cavalo"},
+    {w:"Ferrari",hint:"esportivo italiano",hintHard:"vermelho"},
+    {w:"Lamborghini",hint:"super esportivo",hintHard:"touro"},
+    {w:"Porsche",hint:"esportivo alemão",hintHard:"911"},
+    {w:"BMW",hint:"carro alemão",hintHard:"azul e branco"},
+    {w:"Mercedes",hint:"luxo alemão",hintHard:"estrela de três pontas"},
+    {w:"Jeep",hint:"off-road",hintHard:"Renegade"},
+    {w:"Caminhão",hint:"veículo grande",hintHard:"carga"},
+    {w:"Moto",hint:"duas rodas motorizadas",hintHard:"capacete"},
+    {w:"Trator",hint:"veículo agrícola",hintHard:"fazenda"},
+    {w:"Ônibus",hint:"transporte público",hintHard:"parada"},
+    {w:"Trem",hint:"sobre trilhos",hintHard:"vagões"},
+    {w:"Metrô",hint:"transporte urbano",hintHard:"subterrâneo"},
+    {w:"Avião",hint:"transporte aéreo",hintHard:"asas"},
+    {w:"Helicóptero",hint:"aéreo com hélice",hintHard:"rotor"},
+    {w:"Barco",hint:"aquático",hintHard:"flutua"},
+    {w:"Lancha",hint:"barco rápido",hintHard:"motor"},
+    {w:"Bicicleta",hint:"sem motor",hintHard:"pedais"},
+    {w:"Patinete",hint:"urbano elétrico",hintHard:"duas rodas pequenas"},
+  ]},
+  { id:"desserts", emoji:"🍰", name:"Doces & Sobremesas", words:[
+    {w:"Bolo de Aniversário",hint:"festa",hintHard:"velinhas"},
+    {w:"Pudim",hint:"sobremesa cremosa",hintHard:"caramelo"},
+    {w:"Quindim",hint:"sobremesa amarela",hintHard:"coco"},
+    {w:"Beijinho",hint:"doce de festa",hintHard:"coco branco"},
+    {w:"Cocada",hint:"doce de coco",hintHard:"baiana"},
+    {w:"Cupcake",hint:"bolinho individual",hintHard:"cobertura"},
+    {w:"Donut",hint:"rosquinha",hintHard:"furo no meio"},
+    {w:"Macaron",hint:"doce francês",hintHard:"colorido"},
+    {w:"Cheesecake",hint:"torta de queijo",hintHard:"frutas vermelhas"},
+    {w:"Petit Gâteau",hint:"bolinho quente",hintHard:"recheio derretido"},
+    {w:"Tiramisu",hint:"sobremesa italiana",hintHard:"café"},
+    {w:"Banoffee",hint:"torta inglesa",hintHard:"banana e doce de leite"},
+    {w:"Sorvete de Casquinha",hint:"verão",hintHard:"cone"},
+    {w:"Açaí na Tigela",hint:"comida saudável",hintHard:"granola"},
+    {w:"Brownie",hint:"massa de chocolate",hintHard:"denso"},
+    {w:"Mousse de Maracujá",hint:"sobremesa azedinha",hintHard:"amarela"},
+    {w:"Romeu e Julieta",hint:"queijo + goiabada",hintHard:"mineiro"},
+    {w:"Paçoca",hint:"doce de amendoim",hintHard:"farelinho"},
+    {w:"Pé de Moleque",hint:"doce de amendoim",hintHard:"crocante"},
+    {w:"Bala",hint:"guloseima pequena",hintHard:"açucarada"},
+    {w:"Pirulito",hint:"bala com palito",hintHard:"redondo"},
+    {w:"Chiclete",hint:"mastigar",hintHard:"bola"},
+    {w:"Algodão Doce",hint:"parque de diversões",hintHard:"rosa fofo"},
+    {w:"Maçã do Amor",hint:"doce de parque",hintHard:"caramelo vermelho"},
+    {w:"Fondue",hint:"experiência gourmet",hintHard:"chocolate derretido"},
+  ]},
+  { id:"br_culture", emoji:"🇧🇷", name:"Cultura Pop BR", words:[
+    {w:"BBB",hint:"reality show",hintHard:"big brother"},
+    {w:"A Fazenda",hint:"reality show",hintHard:"roça"},
+    {w:"Casamento Blindado",hint:"reality de casal",hintHard:"desafios"},
+    {w:"Jornal Nacional",hint:"tele jornal",hintHard:"oito horas"},
+    {w:"Globo",hint:"emissora de TV",hintHard:"plim plim"},
+    {w:"Carnaval",hint:"festa popular",hintHard:"samba"},
+    {w:"Réveillon",hint:"virada do ano",hintHard:"branco"},
+    {w:"Festa Junina",hint:"festa de junho",hintHard:"quadrilha"},
+    {w:"Páscoa",hint:"feriado",hintHard:"chocolate"},
+    {w:"Dia das Mães",hint:"feriado familiar",hintHard:"maio"},
+    {w:"Black Friday",hint:"data comercial",hintHard:"metade do dobro"},
+    {w:"Olimpíadas",hint:"evento esportivo",hintHard:"tochas"},
+    {w:"Copa do Mundo",hint:"evento esportivo",hintHard:"futebol"},
+    {w:"Rock in Rio",hint:"festival de música",hintHard:"palco mundo"},
+    {w:"Lollapalooza",hint:"festival",hintHard:"interlagos"},
+    {w:"Marketplace",hint:"tecnologia",hintHard:"compras online"},
+    {w:"Pix",hint:"pagamento",hintHard:"instantâneo"},
+    {w:"WhatsApp",hint:"mensagens",hintHard:"verde"},
+    {w:"Lan House",hint:"memória dos 2000",hintHard:"jogar online"},
+    {w:"Mensageiro",hint:"app antigo",hintHard:"MSN"},
+    {w:"Orkut",hint:"rede social antiga",hintHard:"comunidades"},
+    {w:"Casinha de Boneca",hint:"brinquedo de criança",hintHard:"miniatura"},
+    {w:"Pipa",hint:"brincadeira de rua",hintHard:"no céu"},
+    {w:"Bafo",hint:"brincadeira nostálgica",hintHard:"figurinhas"},
+    {w:"Bets",hint:"fenômeno recente",hintHard:"apostar"},
+  ]},
+];
+
+/* ============================================================
+   2) STATE
+   ============================================================ */
+const STORAGE_KEY = 'impostor_players_v1';
+const SETTINGS_KEY = 'impostor_settings_v1';
+function loadPlayers(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    const arr = JSON.parse(raw);
+    if(!Array.isArray(arr) || arr.length<3) return null;
+    return arr.slice(0,20).map(p=>({ name: String(p.name||'').slice(0,14) || 'Jogador' }));
+  }catch(e){ return null; }
+}
+function savePlayers(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.players.map(p=>({name:p.name})))); }catch(e){}
+}
+function loadSettings(){
+  try{
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){ return {}; }
+}
+function saveSettings(){
+  try{
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+      mode: state.mode,
+      musicOn: state.musicOn,
+      soundPack: state.soundPack,
+      spyMode: state.spyMode,
+      doubleAgentMode: state.doubleAgentMode,
+      voteMode: state.voteMode,
+      timerOn: state.timerOn,
+      timerMinutes: state.timerMinutes,
+      difficulty: state.difficulty,
+      selectedCategories: state.selectedCategories,
+      impostorCount: state.impostorCount,
+      hasSeenOnboarding: state.hasSeenOnboarding,
+      stats: state.stats,
+      scores: state.scores,
+    }));
+  }catch(e){}
+}
+
+const _saved = loadSettings();
+const _validCatIds = new Set(CATEGORIES.map(c=>c.id));
+const state = {
+  players: loadPlayers() || [
+    { name:'Jogador 1' },
+    { name:'Jogador 2' },
+    { name:'Jogador 3' },
+  ],
+  impostorCount: Math.max(1, parseInt(_saved.impostorCount,10) || 1),
+  mode: _saved.mode==='silent' ? 'silent' : 'classic',
+  musicOn: _saved.musicOn !== false,            // default ligada
+  soundPack: ['classic','retro','cinema','cyber'].includes(_saved.soundPack) ? _saved.soundPack : 'classic',
+  spyMode: !!_saved.spyMode,
+  doubleAgentMode: !!_saved.doubleAgentMode,
+  voteMode: !!_saved.voteMode,
+  timerOn: !!_saved.timerOn,
+  timerMinutes: Math.min(10, Math.max(1, parseInt(_saved.timerMinutes,10) || 3)),
+  difficulty: ['easy','normal','hard'].includes(_saved.difficulty) ? _saved.difficulty : 'normal',
+  selectedCategories: (Array.isArray(_saved.selectedCategories) && _saved.selectedCategories.length
+    ? _saved.selectedCategories.filter(id=>_validCatIds.has(id))
+    : null) || CATEGORIES.map(c=>c.id),
+  scores: (_saved.scores && typeof _saved.scores==='object') ? _saved.scores : {},
+  stats: (_saved.stats && typeof _saved.stats==='object') ? _saved.stats : {}, // {nome: {roundsPlayed, timesImpostor, timesDoubleAgent, timesCaught, timesEscaped, timesAccusedWrong}}
+  hasSeenOnboarding: !!_saved.hasSeenOnboarding,
+  // round state
+  round: {
+    impostors: [],           // indices
+    doubleAgents: [],        // indices (modo Agente Duplo)
+    accused: [],             // indices acusados na votação
+    word: null,
+    category: null,          // category object
+    starterIndex: 0,
+    currentPlayer: 0,
+    revealed: false,
+    seen: [],                // índices que já revelaram a carta nesta rodada
+    holding:false,
+  },
+  timer: {
+    running:false,
+    remaining:0,
+    total:0,
+    interval:null,
+  }
+};
+
+function emptyStats(){
+  return { roundsPlayed:0, timesImpostor:0, timesDoubleAgent:0, timesCaught:0, timesEscaped:0, timesAccusedWrong:0 };
+}
+function statsFor(name){
+  if(!state.stats[name]) state.stats[name] = emptyStats();
+  return state.stats[name];
+}
+
+/* ============================================================
+   3) AUDIO (Web Audio API) — 4 sound packs + música de fundo
+   ============================================================ */
+let audioCtx = null;
+function ensureAudio(){
+  if(state.mode === 'silent') return null;
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+    catch(e){ return null; }
+  }
+  // cobre 'suspended' e o estado 'interrupted' do iOS (voltar de background/ligação)
+  if(audioCtx.state !== 'running'){ try{ audioCtx.resume(); }catch(e){} }
+  return audioCtx;
+}
+
+// Toca uma "voz": osciladores com envelope ADSR, sweep de pitch,
+// harmônicos (parciais) e detune (unison) — mesmas receitas do app nativo.
+function voice(v, dest, t0){
+  const ctx = ensureAudio(); if(!ctx) return;
+  const dst = dest || ctx.destination;
+  const start = (t0 !== undefined ? t0 : ctx.currentTime) + (v.delay||0);
+  const dur = v.dur;
+  const attack = Math.max(0.001, v.attack !== undefined ? v.attack : 0.008);
+  const release = Math.max(0.02, v.release !== undefined ? v.release : Math.min(0.3, dur*0.6));
+  const baseGain = v.gain !== undefined ? v.gain : 0.2;
+  const type = v.type==='saw' ? 'sawtooth' : (v.type||'sine');
+  function osc(freq, freqEnd, g, waveType){
+    const o = ctx.createOscillator();
+    const gn = ctx.createGain();
+    o.type = waveType || type;
+    o.frequency.setValueAtTime(freq, start);
+    if(freqEnd && freqEnd !== freq) o.frequency.linearRampToValueAtTime(freqEnd, start+dur);
+    gn.gain.setValueAtTime(0, start);
+    gn.gain.linearRampToValueAtTime(g, start+attack);
+    gn.gain.setValueAtTime(g, Math.max(start+attack, start+dur-release));
+    gn.gain.linearRampToValueAtTime(0.0001, start+dur);
+    o.connect(gn); gn.connect(dst);
+    o.start(start); o.stop(start+dur+0.05);
+  }
+  if(v.detune){
+    const up = Math.pow(2, v.detune/1200), down = Math.pow(2, -v.detune/1200);
+    osc(v.freq, v.freqEnd, baseGain);
+    osc(v.freq*up, v.freqEnd ? v.freqEnd*up : undefined, baseGain*0.6);
+    osc(v.freq*down, v.freqEnd ? v.freqEnd*down : undefined, baseGain*0.6);
+  } else {
+    osc(v.freq, v.freqEnd, baseGain);
+  }
+  (v.harmonics||[]).forEach((ratio, h)=>{
+    osc(v.freq*ratio, v.freqEnd ? v.freqEnd*ratio : undefined, baseGain*(1/(h+2))*0.8, 'sine');
+  });
+}
+
+// 14 sons × 4 estilos — portado de lib/audio.ts do app
+const SOUND_PACKS = {
+  classic: {
+    reveal: [
+      {freq:880,freqEnd:280,dur:.45,type:'sine',gain:.22,attack:.015,release:.32,harmonics:[2,3]},
+      {freq:440,freqEnd:140,dur:.45,type:'triangle',gain:.12,attack:.015,release:.32},
+    ],
+    impostor: [
+      {freq:55,dur:.85,type:'sine',gain:.28,attack:.02,release:.55},
+      {freq:110,dur:.75,type:'saw',gain:.16,attack:.025,release:.5,harmonics:[2]},
+      {freq:165,dur:.7,delay:.05,type:'saw',gain:.13,attack:.03,release:.45},
+      {freq:220,dur:.65,delay:.1,type:'sine',gain:.14,attack:.03,release:.4,harmonics:[2,3]},
+    ],
+    click: [{freq:1600,freqEnd:1100,dur:.05,type:'square',gain:.14,attack:.001,release:.04}],
+    ui: [{freq:880,freqEnd:1100,dur:.07,type:'sine',gain:.11,attack:.003,release:.06,harmonics:[2]}],
+    alarm: [
+      {freq:1000,dur:.1,type:'square',gain:.18,attack:.005,release:.07},
+      {freq:1000,dur:.1,delay:.16,type:'square',gain:.18,attack:.005,release:.07},
+      {freq:1000,dur:.1,delay:.32,type:'square',gain:.18,attack:.005,release:.07},
+      {freq:800,freqEnd:500,dur:.25,delay:.48,type:'square',gain:.2,attack:.005,release:.18},
+    ],
+    ding: [
+      {freq:523.25,dur:.75,type:'sine',gain:.14,attack:.004,release:.65,harmonics:[2,3]},
+      {freq:659.25,dur:.7,delay:.08,type:'sine',gain:.13,attack:.004,release:.6,harmonics:[2]},
+      {freq:783.99,dur:.65,delay:.16,type:'sine',gain:.12,attack:.004,release:.55,harmonics:[2]},
+      {freq:1046.5,dur:.6,delay:.24,type:'sine',gain:.11,attack:.004,release:.5},
+    ],
+    pop: [{freq:380,freqEnd:900,dur:.12,type:'sine',gain:.16,attack:.003,release:.1,harmonics:[2]}],
+    whoosh: [
+      {freq:1100,freqEnd:280,dur:.28,type:'sine',gain:.12,attack:.04,release:.18},
+      {freq:550,freqEnd:140,dur:.28,type:'triangle',gain:.08,attack:.04,release:.18},
+    ],
+    correct: [
+      {freq:523.25,dur:.6,type:'sine',gain:.14,attack:.003,release:.5,harmonics:[2,3,4]},
+      {freq:659.25,dur:.6,delay:.08,type:'sine',gain:.13,attack:.003,release:.5,harmonics:[2,3]},
+      {freq:783.99,dur:.6,delay:.16,type:'sine',gain:.13,attack:.003,release:.5,harmonics:[2,3]},
+      {freq:1046.5,dur:.7,delay:.24,type:'sine',gain:.15,attack:.003,release:.6,harmonics:[2,3,4]},
+    ],
+    wrong: [
+      {freq:392,freqEnd:350,dur:.22,type:'saw',gain:.18,attack:.01,release:.12,harmonics:[2]},
+      {freq:349,freqEnd:311,dur:.22,delay:.22,type:'saw',gain:.18,attack:.01,release:.12,harmonics:[2]},
+      {freq:311,freqEnd:277,dur:.32,delay:.44,type:'saw',gain:.2,attack:.01,release:.22,harmonics:[2]},
+      {freq:220,freqEnd:175,dur:.5,delay:.76,type:'saw',gain:.22,attack:.01,release:.4,harmonics:[2,3]},
+    ],
+    tick: [{freq:1900,dur:.03,type:'square',gain:.1,attack:.001,release:.025}],
+    coin: [
+      {freq:988,dur:.07,type:'square',gain:.14,attack:.002,release:.06},
+      {freq:1318,dur:.22,delay:.07,type:'square',gain:.14,attack:.002,release:.18},
+    ],
+    boot: [
+      {freq:523,dur:.18,type:'sine',gain:.16,attack:.004,release:.14,harmonics:[2,3]},
+      {freq:659,dur:.18,delay:.1,type:'sine',gain:.16,attack:.004,release:.14,harmonics:[2,3]},
+      {freq:783,dur:.22,delay:.2,type:'sine',gain:.18,attack:.004,release:.18,harmonics:[2,3]},
+      {freq:1046,dur:.5,delay:.3,type:'sine',gain:.2,attack:.004,release:.42,harmonics:[2,3,4]},
+    ],
+    confetti: [
+      {freq:1568,dur:.18,delay:0,type:'sine',gain:.1,attack:.002,release:.15,harmonics:[2]},
+      {freq:1760,dur:.18,delay:.08,type:'sine',gain:.1,attack:.002,release:.15,harmonics:[2]},
+      {freq:2093,dur:.18,delay:.16,type:'sine',gain:.1,attack:.002,release:.15,harmonics:[2]},
+      {freq:1318,dur:.18,delay:.24,type:'sine',gain:.1,attack:.002,release:.15,harmonics:[2]},
+      {freq:1976,dur:.18,delay:.32,type:'sine',gain:.1,attack:.002,release:.15,harmonics:[2]},
+      {freq:1568,dur:.18,delay:.4,type:'sine',gain:.1,attack:.002,release:.15,harmonics:[2]},
+      {freq:2349,dur:.25,delay:.48,type:'sine',gain:.11,attack:.002,release:.22,harmonics:[2,3]},
+      {freq:2637,dur:.4,delay:.6,type:'sine',gain:.13,attack:.002,release:.36,harmonics:[2,3]},
+    ],
+  },
+  // 8-bit NES — square waves, envelopes curtos
+  retro: {
+    reveal: [
+      {freq:523,dur:.05,type:'square',gain:.18,attack:.001,release:.04},
+      {freq:659,dur:.05,delay:.05,type:'square',gain:.18,attack:.001,release:.04},
+      {freq:783,dur:.05,delay:.1,type:'square',gain:.18,attack:.001,release:.04},
+      {freq:1046,dur:.18,delay:.15,type:'square',gain:.2,attack:.001,release:.16},
+    ],
+    impostor: [
+      {freq:392,dur:.1,type:'square',gain:.18,attack:.002,release:.08},
+      {freq:330,dur:.1,delay:.1,type:'square',gain:.18,attack:.002,release:.08},
+      {freq:277,dur:.1,delay:.2,type:'square',gain:.18,attack:.002,release:.08},
+      {freq:220,dur:.4,delay:.3,type:'square',gain:.22,attack:.002,release:.35},
+    ],
+    click: [{freq:1800,dur:.025,type:'square',gain:.16,attack:.001,release:.02}],
+    ui: [{freq:1200,dur:.03,type:'square',gain:.12,attack:.001,release:.025}],
+    alarm: [
+      {freq:1500,dur:.08,type:'square',gain:.2,attack:.001,release:.06},
+      {freq:1500,dur:.08,delay:.12,type:'square',gain:.2,attack:.001,release:.06},
+      {freq:1500,dur:.08,delay:.24,type:'square',gain:.2,attack:.001,release:.06},
+      {freq:1500,dur:.08,delay:.36,type:'square',gain:.2,attack:.001,release:.06},
+    ],
+    ding: [
+      {freq:1046,dur:.06,type:'square',gain:.18,attack:.001,release:.05},
+      {freq:1318,dur:.06,delay:.06,type:'square',gain:.18,attack:.001,release:.05},
+      {freq:1568,dur:.16,delay:.12,type:'square',gain:.2,attack:.001,release:.14},
+    ],
+    pop: [{freq:600,freqEnd:1400,dur:.06,type:'square',gain:.18,attack:.001,release:.05}],
+    whoosh: [{freq:1400,freqEnd:400,dur:.15,type:'square',gain:.14,attack:.01,release:.12}],
+    correct: [
+      {freq:523,dur:.06,type:'square',gain:.18,attack:.001,release:.05},
+      {freq:659,dur:.06,delay:.06,type:'square',gain:.18,attack:.001,release:.05},
+      {freq:783,dur:.06,delay:.12,type:'square',gain:.18,attack:.001,release:.05},
+      {freq:1046,dur:.24,delay:.18,type:'square',gain:.22,attack:.001,release:.2},
+    ],
+    wrong: [
+      {freq:392,dur:.1,type:'square',gain:.2,attack:.001,release:.08},
+      {freq:330,dur:.1,delay:.1,type:'square',gain:.2,attack:.001,release:.08},
+      {freq:261,dur:.3,delay:.2,type:'square',gain:.22,attack:.001,release:.25},
+    ],
+    tick: [{freq:2200,dur:.02,type:'square',gain:.12,attack:.001,release:.015}],
+    coin: [
+      {freq:988,dur:.05,type:'square',gain:.18,attack:.001,release:.04},
+      {freq:1318,dur:.2,delay:.05,type:'square',gain:.2,attack:.001,release:.18},
+    ],
+    boot: [
+      {freq:261,dur:.08,type:'square',gain:.18,attack:.001,release:.06},
+      {freq:523,dur:.08,delay:.08,type:'square',gain:.18,attack:.001,release:.06},
+      {freq:1046,dur:.08,delay:.16,type:'square',gain:.18,attack:.001,release:.06},
+      {freq:1568,dur:.3,delay:.24,type:'square',gain:.22,attack:.001,release:.26},
+    ],
+    confetti: [
+      {freq:1568,dur:.05,type:'square',gain:.14,attack:.001,release:.04},
+      {freq:1760,dur:.05,delay:.06,type:'square',gain:.14,attack:.001,release:.04},
+      {freq:2093,dur:.05,delay:.12,type:'square',gain:.14,attack:.001,release:.04},
+      {freq:2349,dur:.05,delay:.18,type:'square',gain:.14,attack:.001,release:.04},
+      {freq:2637,dur:.05,delay:.24,type:'square',gain:.14,attack:.001,release:.04},
+      {freq:1976,dur:.05,delay:.3,type:'square',gain:.14,attack:.001,release:.04},
+      {freq:2349,dur:.16,delay:.36,type:'square',gain:.18,attack:.001,release:.14},
+    ],
+  },
+  // Orquestral dramático — sines + muitos harmônicos, attacks longos, sub-grave
+  cinema: {
+    reveal: [
+      {freq:220,dur:.9,type:'sine',gain:.22,attack:.12,release:.7,harmonics:[2,3,4,5]},
+      {freq:110,dur:.9,type:'sine',gain:.18,attack:.12,release:.7,harmonics:[2,3]},
+    ],
+    impostor: [
+      {freq:41,dur:1.5,type:'sine',gain:.3,attack:.05,release:1.2,harmonics:[2,3,5]},
+      {freq:82,dur:1.3,type:'sine',gain:.22,attack:.08,release:1,harmonics:[2,3]},
+      {freq:110,dur:1.2,delay:.1,type:'sine',gain:.18,attack:.1,release:.95,harmonics:[2,3,4]},
+      {freq:138.59,dur:1.1,delay:.2,type:'sine',gain:.16,attack:.12,release:.9,harmonics:[2,3]},
+    ],
+    click: [{freq:200,dur:.08,type:'sine',gain:.18,attack:.004,release:.07,harmonics:[2,4]}],
+    ui: [{freq:440,dur:.1,type:'sine',gain:.1,attack:.01,release:.08,harmonics:[2,3]}],
+    alarm: [
+      {freq:660,dur:.3,type:'sine',gain:.2,attack:.04,release:.24,harmonics:[2,3]},
+      {freq:660,dur:.3,delay:.4,type:'sine',gain:.2,attack:.04,release:.24,harmonics:[2,3]},
+      {freq:523,dur:.5,delay:.8,type:'sine',gain:.22,attack:.05,release:.42,harmonics:[2,3,4]},
+    ],
+    ding: [
+      {freq:523,dur:1.5,type:'sine',gain:.16,attack:.008,release:1.4,harmonics:[2,3,4,5]},
+      {freq:659,dur:1.4,delay:.1,type:'sine',gain:.15,attack:.008,release:1.3,harmonics:[2,3,4]},
+      {freq:783,dur:1.3,delay:.2,type:'sine',gain:.14,attack:.008,release:1.2,harmonics:[2,3]},
+      {freq:1046,dur:1.2,delay:.3,type:'sine',gain:.13,attack:.008,release:1.1,harmonics:[2,3]},
+    ],
+    pop: [{freq:261,freqEnd:440,dur:.25,type:'sine',gain:.16,attack:.02,release:.2,harmonics:[2,3]}],
+    whoosh: [
+      {freq:1500,freqEnd:200,dur:.55,type:'sine',gain:.14,attack:.08,release:.42,harmonics:[2]},
+      {freq:750,freqEnd:100,dur:.55,type:'sine',gain:.1,attack:.08,release:.42,harmonics:[2]},
+    ],
+    correct: [
+      {freq:523,dur:1.2,type:'sine',gain:.16,attack:.01,release:1.1,harmonics:[2,3,4,5]},
+      {freq:659,dur:1.2,delay:.15,type:'sine',gain:.15,attack:.01,release:1.1,harmonics:[2,3,4]},
+      {freq:783,dur:1.2,delay:.3,type:'sine',gain:.15,attack:.01,release:1.1,harmonics:[2,3,4]},
+      {freq:1046,dur:1.4,delay:.45,type:'sine',gain:.17,attack:.01,release:1.3,harmonics:[2,3,4,5]},
+    ],
+    wrong: [
+      {freq:220,freqEnd:180,dur:.4,type:'sine',gain:.2,attack:.04,release:.3,harmonics:[2,3]},
+      {freq:175,freqEnd:130,dur:.5,delay:.4,type:'sine',gain:.22,attack:.04,release:.4,harmonics:[2,3]},
+      {freq:110,freqEnd:80,dur:.8,delay:.9,type:'sine',gain:.24,attack:.05,release:.7,harmonics:[2,3,4]},
+    ],
+    tick: [{freq:1200,dur:.04,type:'sine',gain:.1,attack:.002,release:.035,harmonics:[2]}],
+    coin: [
+      {freq:783,dur:.15,type:'sine',gain:.16,attack:.005,release:.13,harmonics:[2,3]},
+      {freq:1046,dur:.35,delay:.1,type:'sine',gain:.18,attack:.005,release:.3,harmonics:[2,3,4]},
+    ],
+    boot: [
+      {freq:261,dur:.3,type:'sine',gain:.18,attack:.04,release:.25,harmonics:[2,3,4]},
+      {freq:392,dur:.3,delay:.15,type:'sine',gain:.18,attack:.04,release:.25,harmonics:[2,3,4]},
+      {freq:523,dur:.3,delay:.3,type:'sine',gain:.2,attack:.04,release:.25,harmonics:[2,3,4,5]},
+      {freq:1046,dur:.8,delay:.45,type:'sine',gain:.22,attack:.04,release:.72,harmonics:[2,3,4,5]},
+    ],
+    confetti: [
+      {freq:1568,dur:.6,type:'sine',gain:.12,attack:.005,release:.55,harmonics:[2,3]},
+      {freq:1760,dur:.6,delay:.1,type:'sine',gain:.12,attack:.005,release:.55,harmonics:[2,3]},
+      {freq:2093,dur:.7,delay:.2,type:'sine',gain:.14,attack:.005,release:.65,harmonics:[2,3]},
+      {freq:2637,dur:.8,delay:.3,type:'sine',gain:.15,attack:.005,release:.75,harmonics:[2,3,4]},
+    ],
+  },
+  // Synthwave anos 80 — saws com detune (unison)
+  cyber: {
+    reveal: [
+      {freq:880,freqEnd:220,dur:.5,type:'saw',gain:.16,attack:.01,release:.4,detune:12},
+      {freq:440,freqEnd:110,dur:.5,type:'saw',gain:.12,attack:.01,release:.4,detune:8},
+    ],
+    impostor: [
+      {freq:65,dur:1,type:'saw',gain:.22,attack:.02,release:.85,harmonics:[2]},
+      {freq:130,dur:.9,type:'saw',gain:.18,attack:.04,release:.75,detune:15},
+      {freq:195,dur:.85,delay:.1,type:'saw',gain:.15,attack:.04,release:.7,detune:12},
+      {freq:260,dur:.8,delay:.2,type:'saw',gain:.13,attack:.04,release:.65,detune:10},
+    ],
+    click: [{freq:2200,freqEnd:1500,dur:.04,type:'saw',gain:.14,attack:.001,release:.035,detune:20}],
+    ui: [{freq:1200,freqEnd:1500,dur:.06,type:'saw',gain:.1,attack:.002,release:.05,detune:15}],
+    alarm: [
+      {freq:880,dur:.12,type:'saw',gain:.18,attack:.005,release:.1,detune:20},
+      {freq:880,dur:.12,delay:.18,type:'saw',gain:.18,attack:.005,release:.1,detune:20},
+      {freq:880,dur:.12,delay:.36,type:'saw',gain:.18,attack:.005,release:.1,detune:20},
+      {freq:660,freqEnd:440,dur:.4,delay:.54,type:'saw',gain:.2,attack:.005,release:.34,detune:25},
+    ],
+    ding: [
+      {freq:523,dur:.7,type:'saw',gain:.13,attack:.004,release:.65,detune:10},
+      {freq:659,dur:.7,delay:.1,type:'saw',gain:.12,attack:.004,release:.65,detune:10},
+      {freq:880,dur:.7,delay:.2,type:'saw',gain:.12,attack:.004,release:.65,detune:12},
+      {freq:1046,dur:.8,delay:.3,type:'saw',gain:.14,attack:.004,release:.75,detune:15},
+    ],
+    pop: [{freq:400,freqEnd:900,dur:.1,type:'saw',gain:.16,attack:.002,release:.09,detune:15}],
+    whoosh: [
+      {freq:1400,freqEnd:300,dur:.35,type:'saw',gain:.13,attack:.05,release:.28,detune:20},
+      {freq:700,freqEnd:150,dur:.35,type:'saw',gain:.1,attack:.05,release:.28,detune:15},
+    ],
+    correct: [
+      {freq:523,dur:.5,type:'saw',gain:.14,attack:.005,release:.45,detune:10},
+      {freq:659,dur:.5,delay:.1,type:'saw',gain:.14,attack:.005,release:.45,detune:10},
+      {freq:880,dur:.5,delay:.2,type:'saw',gain:.14,attack:.005,release:.45,detune:12},
+      {freq:1318,dur:.7,delay:.3,type:'saw',gain:.17,attack:.005,release:.65,detune:15},
+    ],
+    wrong: [
+      {freq:392,freqEnd:300,dur:.3,type:'saw',gain:.18,attack:.01,release:.25,detune:20},
+      {freq:261,freqEnd:180,dur:.4,delay:.3,type:'saw',gain:.2,attack:.01,release:.34,detune:25},
+      {freq:130,freqEnd:80,dur:.6,delay:.7,type:'saw',gain:.22,attack:.01,release:.52,detune:30},
+    ],
+    tick: [{freq:2000,dur:.025,type:'saw',gain:.1,attack:.001,release:.022,detune:15}],
+    coin: [
+      {freq:988,dur:.06,type:'saw',gain:.14,attack:.002,release:.05,detune:12},
+      {freq:1318,dur:.22,delay:.06,type:'saw',gain:.16,attack:.002,release:.2,detune:15},
+    ],
+    boot: [
+      {freq:261,dur:.16,type:'saw',gain:.16,attack:.005,release:.14,detune:12},
+      {freq:392,dur:.16,delay:.1,type:'saw',gain:.16,attack:.005,release:.14,detune:12},
+      {freq:523,dur:.18,delay:.2,type:'saw',gain:.18,attack:.005,release:.16,detune:15},
+      {freq:1046,dur:.5,delay:.3,type:'saw',gain:.2,attack:.005,release:.45,detune:18},
+    ],
+    confetti: [
+      {freq:1568,dur:.2,type:'saw',gain:.11,attack:.002,release:.18,detune:15},
+      {freq:1760,dur:.2,delay:.1,type:'saw',gain:.11,attack:.002,release:.18,detune:15},
+      {freq:2093,dur:.2,delay:.2,type:'saw',gain:.11,attack:.002,release:.18,detune:15},
+      {freq:2637,dur:.3,delay:.3,type:'saw',gain:.13,attack:.002,release:.27,detune:18},
+      {freq:1976,dur:.4,delay:.4,type:'saw',gain:.14,attack:.002,release:.36,detune:20},
+    ],
+  },
+};
+
+function playSound(type){
+  if(state.mode === 'silent') return;
+  const pack = SOUND_PACKS[state.soundPack] || SOUND_PACKS.classic;
+  const recipe = pack[type] || SOUND_PACKS.classic[type];
+  if(!recipe) return;
+  recipe.forEach(v=>voice(v));
+}
+
+/* ---- MÚSICA DE FUNDO — loops sintetizados com crossfade ---- */
+// ambient (Am-F, 80bpm) toca na home/setup; tense (Am-Dm, 100bpm) na discussão.
+// Silêncio na revelação de cartas/votação/reveal pra deixar os SFX brilharem.
+const MUSIC_TRACKS = {
+  ambient: { bpm:80, chords:[
+    {root:110.00, tones:[220.00,261.63,329.63]},  // Am
+    {root:87.31,  tones:[174.61,220.00,261.63]},  // F
+  ]},
+  tense: { bpm:100, chords:[
+    {root:110.00, tones:[220.00,261.63,329.63]},  // Am
+    {root:73.42,  tones:[146.83,220.00,293.66]},  // Dm
+  ]},
+};
+const music = { want:null, playing:null, timer:null, gainNode:null };
+const MUSIC_VOLUME = 0.5;
+
+function musicAllowed(){ return state.musicOn && state.mode!=='silent'; }
+
+function scheduleMusicCycle(name, t0){
+  const tr = MUSIC_TRACKS[name];
+  const beat = 60/tr.bpm, MEASURE = beat*4;
+  tr.chords.forEach((ch, m)=>{
+    const mt = m*MEASURE;
+    if(name==='ambient'){
+      // bass plucks nos beats 1 e 3 + pad sustentado
+      [0,2].forEach(b=>voice({freq:ch.root,dur:.5,delay:mt+b*beat,type:'sine',gain:.13,attack:.006,release:.4}, music.gainNode, t0));
+      ch.tones.forEach(tn=>voice({freq:tn,dur:MEASURE-.05,delay:mt,type:'sine',gain:.05,attack:.3,release:.4}, music.gainNode, t0));
+    } else {
+      // bass saw em cada beat + pad + pulso agudo (tic-tac de tensão)
+      [0,1,2,3].forEach(b=>voice({freq:ch.root,dur:.3,delay:mt+b*beat,type:'saw',gain:.08,attack:.004,release:.25}, music.gainNode, t0));
+      ch.tones.forEach(tn=>voice({freq:tn,dur:MEASURE-.05,delay:mt,type:'sine',gain:.04,attack:.3,release:.4}, music.gainNode, t0));
+      [0,1,2,3].forEach(b=>voice({freq:880,dur:.07,delay:mt+(b+.75)*beat,type:'square',gain:.022,attack:.002,release:.06}, music.gainNode, t0));
+    }
+  });
+  return tr.chords.length*MEASURE;
+}
+function startMusicLoop(name){
+  const ctx = ensureAudio(); if(!ctx) return;
+  if(!music.gainNode){
+    music.gainNode = ctx.createGain();
+    music.gainNode.gain.value = 0;
+    music.gainNode.connect(ctx.destination);
+  }
+  music.gainNode.gain.cancelScheduledValues(ctx.currentTime);
+  music.gainNode.gain.setValueAtTime(music.gainNode.gain.value, ctx.currentTime);
+  music.gainNode.gain.linearRampToValueAtTime(MUSIC_VOLUME, ctx.currentTime+0.4);
+  const cycle = (t0)=>{
+    if(music.playing!==name) return;
+    const dur = scheduleMusicCycle(name, t0);
+    // agenda o próximo ciclo um pouco antes do atual acabar (loop sem gap)
+    music.timer = setTimeout(()=>cycle(t0+dur), Math.max(50,(t0+dur-ctx.currentTime-0.2)*1000));
+  };
+  cycle(ctx.currentTime+0.05);
+}
+function syncMusic(){
+  const target = musicAllowed() ? music.want : null;
+  if(target === music.playing) return;
+  if(music.timer){ clearTimeout(music.timer); music.timer=null; }
+  if(audioCtx && music.gainNode){
+    music.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+    music.gainNode.gain.setValueAtTime(music.gainNode.gain.value, audioCtx.currentTime);
+    music.gainNode.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime+0.3);
+  }
+  music.playing = target;
+  if(target) startMusicLoop(target);
+}
+function setMusicTrack(name){ music.want = name; syncMusic(); }
+
+/* ============================================================
+   4) HAPTIC
+   ============================================================ */
+function haptic(pattern){
+  if(state.mode === 'silent') return;
+  if(navigator.vibrate){ try{ navigator.vibrate(pattern); }catch(e){} }
+}
+
+/* ============================================================
+   5) TOAST
+   ============================================================ */
+const toastContainer = document.getElementById('toast-container');
+function showToast(msg, type='info'){
+  const t = document.createElement('div');
+  t.className = 'toast '+(type==='info'?'':type);
+  t.textContent = msg;
+  toastContainer.appendChild(t);
+  setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(),260); }, 2500);
+}
+
+/* ============================================================
+   6) HELPERS
+   ============================================================ */
+function $(sel){ return document.querySelector(sel); }
+function $$(sel){ return Array.from(document.querySelectorAll(sel)); }
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function colorFor(i){ return PLAYER_COLORS[i % PLAYER_COLORS.length]; }
+
+/* ============================================================
+   7) NAVIGATION
+   ============================================================ */
+function showScreen(id){
+  // o timer só pode rodar na tela de discussão — evita alarme fantasma em outras telas
+  if(id!=='screen-round') pauseTimer();
+  // wake lock só é necessário durante a partida
+  if(id==='screen-home') releaseWakeLock();
+  // música por tela: ambient na home/setup, tense na discussão,
+  // silêncio na revelação de cartas/votação/reveal (os SFX são o momento)
+  const MUSIC_FOR = { 'screen-home':'ambient', 'screen-setup':'ambient', 'screen-round':'tense' };
+  setMusicTrack(MUSIC_FOR[id] || null);
+  $$('.screen').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el){ el.classList.add('active'); }
+  window.scrollTo(0,0);
+}
+
+function openModal(id, opts){
+  const m = document.getElementById(id);
+  if(!m) return;
+  const dismissible = !opts || opts.dismissible !== false;
+  // limpa listeners de uma abertura anterior (evita acúmulo)
+  if(m._cleanup){ m._cleanup(); m._cleanup=null; }
+  m.classList.add('open');
+  document.documentElement.classList.add('modal-open');
+  if(!dismissible){ m._cleanup = null; return; }
+  // swipe down para fechar (somente quando o sheet está no topo do scroll)
+  const sheet = m.querySelector('.sheet');
+  let startY=null, startScroll=0;
+  function onStart(e){
+    startY = (e.touches?e.touches[0].clientY:e.clientY);
+    startScroll = sheet.scrollTop;
+  }
+  function onEnd(e){
+    if(startY===null) return;
+    const endY = (e.changedTouches?e.changedTouches[0].clientY:e.clientY);
+    if(startScroll<=0 && endY-startY > 80) closeModal(id);
+    startY=null;
+  }
+  function overlayClick(e){ if(e.target===m) closeModal(id); }
+  sheet.addEventListener('touchstart', onStart, {passive:true});
+  sheet.addEventListener('touchend', onEnd, {passive:true});
+  m.addEventListener('click', overlayClick);
+  m._cleanup = ()=>{
+    sheet.removeEventListener('touchstart', onStart);
+    sheet.removeEventListener('touchend', onEnd);
+    m.removeEventListener('click', overlayClick);
+  };
+}
+function closeModal(id){
+  const m = document.getElementById(id);
+  if(!m) return;
+  m.classList.remove('open');
+  if(m._cleanup){ m._cleanup(); m._cleanup=null; }
+  if(!document.querySelector('.modal.open')) document.documentElement.classList.remove('modal-open');
+}
+function closeAllModals(){ $$('.modal.open').forEach(m=>closeModal(m.id)); }
+
+/* ============================================================
+   8) RENDER — SETUP
+   ============================================================ */
+function renderPlayerList(){
+  const list = $('#player-list');
+  list.innerHTML = '';
+  state.players.forEach((p,i)=>{
+    const c = colorFor(i);
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.innerHTML = `
+      <div class="player-chip" style="background:${c.bg};color:${c.text}">${i+1}</div>
+      <input class="player-name" value="${escapeHtml(p.name)}" maxlength="14" />
+      <button class="player-remove" aria-label="Remover">✕</button>
+    `;
+    const input = row.querySelector('.player-name');
+    input.addEventListener('input', e=>{
+      const oldName = state.players[i].name;
+      const newName = e.target.value || ('Jogador '+(i+1));
+      // migra os pontos para o novo nome (placar é indexado por nome)
+      if(newName!==oldName && state.scores[oldName]!==undefined && state.scores[newName]===undefined){
+        state.scores[newName] = state.scores[oldName];
+        delete state.scores[oldName];
+      }
+      state.players[i].name = newName;
+      savePlayers();
+    });
+    input.addEventListener('focus', e=>{ setTimeout(()=>e.target.scrollIntoView({behavior:'smooth',block:'center'}), 200); });
+    row.querySelector('.player-remove').addEventListener('click', ()=>{
+      if(state.players.length<=3){ showToast('Mínimo de 3 jogadores','warning'); haptic(20); return; }
+      state.players.splice(i,1);
+      // adjust impostor count
+      const maxImp = Math.floor(state.players.length/2);
+      if(state.impostorCount>maxImp) state.impostorCount = Math.max(1, maxImp);
+      savePlayers();
+      renderPlayerList(); renderImpostor(); renderCount();
+      playSound('click'); haptic(10);
+    });
+    list.appendChild(row);
+  });
+  renderCount();
+}
+function renderCount(){
+  $('#player-count-badge').textContent = state.players.length + ' jogadores';
+}
+function addPlayer(){
+  const input = $('#new-player-input');
+  let name = input.value.trim();
+  if(!name) name = 'Jogador '+(state.players.length+1);
+  if(state.players.length>=20){ showToast('Máximo de 20 jogadores','warning'); return; }
+  state.players.push({ name });
+  input.value=''; input.focus();
+  savePlayers();
+  renderPlayerList();
+  playSound('ui'); haptic(10);
+}
+function renderImpostor(){
+  const maxImp = Math.max(1, Math.floor(state.players.length/2));
+  if(state.impostorCount>maxImp) state.impostorCount = maxImp;
+  if(state.impostorCount<1) state.impostorCount = 1;
+  $('#imp-count').textContent = state.impostorCount;
+  $('#imp-label').textContent = state.impostorCount===1?'1 IMPOSTOR':state.impostorCount+' IMPOSTORES';
+  renderSpecialModes(); // spy-row aparece só com 2+ impostores
+}
+function renderCategories(){
+  const grid = $('#cat-grid');
+  grid.innerHTML = '';
+  CATEGORIES.forEach(cat=>{
+    const card = document.createElement('div');
+    const sel = state.selectedCategories.includes(cat.id);
+    card.className = 'cat-card'+(sel?' selected':'');
+    card.dataset.cat = cat.id;
+    card.innerHTML = `<span class="tag">GRÁTIS</span><span class="em">${cat.emoji}</span><span class="nm">${cat.name}</span>`;
+    card.addEventListener('click', ()=>{
+      const idx = state.selectedCategories.indexOf(cat.id);
+      if(idx>=0) state.selectedCategories.splice(idx,1);
+      else state.selectedCategories.push(cat.id);
+      card.classList.toggle('selected');
+      playSound('ui'); haptic(8);
+    });
+    grid.appendChild(card);
+  });
+}
+function renderDiff(){
+  $$('#diff-pills .pill').forEach(p=>p.classList.toggle('active', p.dataset.diff===state.difficulty));
+  const desc = {
+    easy:'Impostor vê a categoria, mas não a palavra.',
+    normal:'Impostor recebe uma dica genérica.',
+    hard:'Impostor não recebe NENHUMA dica.',
+  }[state.difficulty];
+  $('#diff-desc').textContent = desc;
+}
+function renderMode(){
+  $$('#mode-pills .pill').forEach(p=>p.classList.toggle('active', p.dataset.mode===state.mode));
+}
+function renderTimerSettings(){
+  $('#timer-toggle').classList.toggle('on', state.timerOn);
+  $('#timer-slider-wrap').style.display = state.timerOn?'block':'none';
+  $('#timer-slider').value = state.timerMinutes;
+  $('#timer-slider-val').textContent = state.timerMinutes;
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+
+/* ============================================================
+   9) GAME LOGIC
+   ============================================================ */
+function startGame(){
+  if(state.players.length<3){ showToast('Adicione ao menos 3 jogadores','error'); return; }
+  if(state.selectedCategories.length===0){ showToast('Selecione ao menos 1 categoria','error'); return; }
+  if(state.impostorCount>=state.players.length){ showToast('Impostores demais!','error'); return; }
+  // nomes vazios ganham default
+  state.players.forEach((p,i)=>{ if(!p.name.trim()) p.name = 'Jogador '+(i+1); });
+  // nomes duplicados ganham sufixo — o placar é indexado por nome
+  const usedNames = new Set();
+  state.players.forEach(p=>{
+    let n = p.name, k = 2;
+    while(usedNames.has(n)){ n = p.name + ' ' + k++; }
+    usedNames.add(n);
+    p.name = n;
+  });
+  savePlayers();
+  // pick category and word
+  const cats = CATEGORIES.filter(c=>state.selectedCategories.includes(c.id));
+  const cat = rand(cats);
+  const word = rand(cat.words);
+  state.round.category = cat;
+  state.round.word = word;
+  setupRoundRoles();
+  // init scores
+  state.players.forEach(p=>{ if(state.scores[p.name]===undefined) state.scores[p.name]=0; });
+  ensureAudio();
+  acquireWakeLock();
+  renderCardScreen();
+  showScreen('screen-card');
+  playSound('boot'); haptic([20,30]);
+  saveSettings();
+}
+
+// Sorteia impostores + agente duplo e registra estatísticas da rodada
+function setupRoundRoles(){
+  const shuffled = shuffle(state.players.map((_,i)=>i));
+  state.round.impostors = shuffled.slice(0, state.impostorCount);
+  // Agente Duplo: 1 jogador NÃO-impostor que vê a palavra mas conta como impostor
+  state.round.doubleAgents = [];
+  if(state.doubleAgentMode){
+    const nonImpostors = shuffled.slice(state.impostorCount);
+    if(nonImpostors.length > 0) state.round.doubleAgents = [nonImpostors[0]];
+  }
+  state.round.accused = [];
+  state.round.currentPlayer = 0;
+  state.round.starterIndex = Math.floor(Math.random()*state.players.length);
+  state.round.revealed = false;
+  state.round.seen = [];
+  // estatísticas: rodada jogada + papel sorteado
+  state.players.forEach((p,idx)=>{
+    const st = statsFor(p.name);
+    st.roundsPlayed++;
+    if(state.round.impostors.includes(idx)) st.timesImpostor++;
+    if(state.round.doubleAgents.includes(idx)) st.timesDoubleAgent++;
+  });
+}
+
+function renderCardScreen(){
+  const i = state.round.currentPlayer;
+  const p = state.players[i];
+  const c = colorFor(i);
+  // banner
+  const banner = $('#player-banner');
+  banner.textContent = p.name.toUpperCase();
+  banner.style.background = c.bg;
+  banner.style.color = c.text;
+  // dots
+  const dots = $('#progress-dots'); dots.innerHTML = '';
+  state.players.forEach((_,k)=>{
+    const dot = document.createElement('div');
+    const cc = colorFor(k);
+    dot.className = 'dot'+(k<i?' done':'')+(k===i?' current':'');
+    dot.style.background = cc.bg;
+    dot.style.borderColor = '#1a1a1a';
+    dots.appendChild(dot);
+  });
+  // card colors
+  const card = $('#card');
+  card.classList.remove('flipped');
+  card.style.setProperty('--card-bg', c.bg);
+  card.style.setProperty('--card-text', c.text);
+  $('#card-back').style.color = c.text;
+  // front content
+  const front = $('#card-front');
+  const isImp = state.round.impostors.includes(i);
+  const isDA = state.round.doubleAgents.includes(i);
+  front.classList.toggle('impostor', isImp && !isDA);
+  const cat = state.round.category;
+  const word = state.round.word;
+  if(isDA){
+    // Agente Duplo: vê a palavra mas conta como impostor na pontuação
+    front.innerHTML = `
+      <div class="imp-icon">🎭</div>
+      <div class="da-badge">AGENTE DUPLO</div>
+      <div class="word">${word.w.toUpperCase()}</div>
+      <div class="da-hint">Você sabe a palavra, mas<br>conta como impostor!</div>
+      <div class="da-foot">Aja normal pra não ser acusado.</div>
+    `;
+  } else if(isImp){
+    let hintLine = '';
+    if(state.difficulty==='easy'){ hintLine = `<div class="hint-txt">Categoria: <b>${cat.name}</b> ${cat.emoji}</div>`; }
+    else if(state.difficulty==='normal'){ hintLine = `<div class="hint-txt">Dica: ${word.hint}</div>`; }
+    else { hintLine = `<div class="hint-txt">Sem dicas. Boa sorte!</div>`; }
+    // Modo Spy: impostores se reconhecem
+    let allyBox = '';
+    if(state.spyMode && state.round.impostors.length > 1){
+      const allies = state.round.impostors.filter(idx=>idx!==i).map(idx=>state.players[idx].name);
+      allyBox = `
+        <div class="ally-box">
+          <div class="ally-lbl">SEUS ALIADOS</div>
+          <div class="ally-names">${escapeHtml(allies.join(' & '))}</div>
+        </div>`;
+    }
+    front.innerHTML = `
+      <div class="imp-icon">🕵️</div>
+      <div class="imp-title">VOCÊ É O IMPOSTOR!</div>
+      ${hintLine}
+      ${allyBox}
+      <div class="imp-foot">Finja que sabe! Não seja descoberto.</div>
+    `;
+  } else {
+    let hintLine = '';
+    if(state.difficulty==='easy'){ hintLine = `<div class="hint-txt">Dica: ${word.hint}</div>`; }
+    else if(state.difficulty==='normal'){ hintLine = `<div class="hint-txt">${cat.name}</div>`; }
+    else { hintLine = `<div class="hint-txt">${cat.name}</div>`; }
+    front.innerHTML = `
+      <div class="badge dark">${cat.emoji} ${cat.name}</div>
+      <div class="word">${word.w.toUpperCase()}</div>
+      ${hintLine}
+      <div class="footer-txt">Lembre-se! Não diga a palavra.</div>
+    `;
+  }
+  // buttons
+  $('#prev-player-btn').disabled = (i===0);
+  const nextBtn = $('#next-player-btn');
+  if(i===state.players.length-1){ nextBtn.textContent='COMEÇAR RODADA ▶'; nextBtn.classList.add('dark'); nextBtn.classList.remove('primary'); }
+  else { nextBtn.textContent='PRÓXIMO JOGADOR ▶'; nextBtn.classList.add('primary'); nextBtn.classList.remove('dark'); }
+  // reset hold bar
+  $('#hold-bar').style.width = '0%';
+  state.round.revealed = false;
+}
+
+function nextPlayer(){
+  // o jogador precisa ver a própria carta antes de passar o celular
+  if(!state.round.seen.includes(state.round.currentPlayer)){
+    showToast('Segure o card primeiro! 👆','warning'); haptic(20); return;
+  }
+  if(state.round.currentPlayer < state.players.length-1){
+    state.round.currentPlayer++;
+    renderCardScreen();
+    playSound('whoosh'); haptic(10);
+  } else {
+    // start round
+    showRoundScreen();
+  }
+}
+function prevPlayer(){
+  if(state.round.currentPlayer>0){
+    state.round.currentPlayer--;
+    renderCardScreen();
+    playSound('whoosh'); haptic(8);
+  }
+}
+
+function showRoundScreen(){
+  const s = colorFor(state.round.starterIndex);
+  const name = state.players[state.round.starterIndex].name;
+  const el = $('#starter-name');
+  el.textContent = name.toUpperCase();
+  el.style.background = s.bg; el.style.color = s.text;
+  // modo votação muda o call-to-action da rodada
+  $('#round-reveal-btn').textContent = state.voteMode ? '🗳️ IR PARA VOTAÇÃO' : '🚨 REVELAR IMPOSTOR';
+  if(state.timerOn){
+    $('#timer-block').style.display = 'block';
+    initTimer(state.timerMinutes*60);
+    startTimer();
+  } else {
+    $('#timer-block').style.display = 'none';
+  }
+  showScreen('screen-round');
+  playSound('whoosh'); haptic([20,30]);
+}
+
+/* ---- VOTAÇÃO (modo voto) ---- */
+const vote = { selected: [] };
+function voteTargetCount(){ return state.round.impostors.length + state.round.doubleAgents.length; }
+function showVoteScreen(){
+  vote.selected = [];
+  renderVoteScreen();
+  showScreen('screen-vote');
+  playSound('whoosh'); haptic(15);
+}
+function renderVoteScreen(){
+  const n = voteTargetCount();
+  $('#vote-counter').textContent = `${vote.selected.length} de ${n} selecionado${n>1?'s':''}`;
+  const grid = $('#vote-grid');
+  grid.innerHTML = '';
+  state.players.forEach((p,i)=>{
+    const c = colorFor(i);
+    const cell = document.createElement('div');
+    cell.className = 'vote-cell'+(vote.selected.includes(i)?' picked':'');
+    cell.style.background = c.bg;
+    cell.style.color = c.text;
+    cell.innerHTML = `
+      <div class="num">${i+1}</div>
+      <div class="nm">${escapeHtml(p.name)}</div>
+      <div class="picked-badge">✕</div>
+    `;
+    cell.addEventListener('click', ()=>toggleVote(i));
+    grid.appendChild(cell);
+  });
+  const btn = $('#vote-confirm-btn');
+  const ready = vote.selected.length === n;
+  btn.disabled = !ready;
+  btn.classList.toggle('danger', ready);
+  btn.classList.toggle('ghost', !ready);
+  btn.textContent = ready ? '🚨 CONFIRMAR VOTO' : `SELECIONE ${n - vote.selected.length} MAIS`;
+}
+function toggleVote(i){
+  const n = voteTargetCount();
+  const idx = vote.selected.indexOf(i);
+  if(idx>=0){
+    vote.selected.splice(idx,1);
+    playSound('ui'); haptic(8);
+  } else if(vote.selected.length >= n){
+    // já bateu o limite — substitui o mais antigo
+    vote.selected.shift();
+    vote.selected.push(i);
+    playSound('pop'); haptic(20);
+  } else {
+    vote.selected.push(i);
+    playSound('pop'); haptic(15);
+  }
+  renderVoteScreen();
+}
+function confirmVote(){
+  if(vote.selected.length !== voteTargetCount()) return;
+  state.round.accused = vote.selected.slice();
+  const groupCorrect = applyVoteScore();
+  playSound('whoosh'); haptic([50,30,50]);
+  showFinalReveal({fromVote:true, groupCorrect});
+}
+
+/* ---- TIMER ---- */
+function initTimer(seconds){
+  state.timer.total = seconds;
+  state.timer.remaining = seconds;
+  state.timer.running = false;
+  if(state.timer.interval){ clearInterval(state.timer.interval); state.timer.interval=null; }
+  renderTimer();
+  $('#timer-toggle-btn').textContent='⏸ Pausar';
+}
+function startTimer(){
+  if(state.timer.running) return;
+  if(state.timer.remaining<=0) return; // expirado: só reset reinicia
+  state.timer.running = true;
+  // contagem por timestamp — não atrasa quando o navegador trava o setInterval em background
+  state.timer.deadline = Date.now() + state.timer.remaining*1000;
+  let lastTickSecond = -1;
+  state.timer.interval = setInterval(()=>{
+    state.timer.remaining = Math.max(0, Math.round((state.timer.deadline - Date.now())/1000));
+    // tic-tac nos últimos 5 segundos
+    if(state.timer.remaining<=5 && state.timer.remaining>0 && state.timer.remaining!==lastTickSecond){
+      lastTickSecond = state.timer.remaining;
+      playSound('tick'); haptic(10);
+    }
+    if(state.timer.remaining<=0){
+      pauseTimer();
+      $('#timer-toggle-btn').textContent='🔄 Reiniciar';
+      playSound('alarm'); haptic([100,50,100,50,100]);
+      showToast('⏰ Tempo esgotado!','warning');
+    }
+    renderTimer();
+  }, 250);
+}
+function pauseTimer(){
+  state.timer.running=false;
+  if(state.timer.interval){ clearInterval(state.timer.interval); state.timer.interval=null; }
+}
+function toggleTimerCtrl(){
+  if(state.timer.remaining<=0){
+    // expirou — botão vira "reiniciar"
+    initTimer(state.timerMinutes*60);
+    startTimer();
+  } else if(state.timer.running){
+    pauseTimer(); $('#timer-toggle-btn').textContent='▶ Retomar';
+  } else {
+    startTimer(); $('#timer-toggle-btn').textContent='⏸ Pausar';
+  }
+  playSound('ui'); haptic(8);
+}
+function resetTimer(){
+  // reset-e-continua: zera a contagem e segue rodando
+  initTimer(state.timerMinutes*60);
+  startTimer();
+  playSound('ui'); haptic(8);
+}
+function renderTimer(){
+  const r = state.timer.remaining;
+  const m = Math.floor(r/60), s = r%60;
+  $('#time-txt').textContent = m+':'+String(s).padStart(2,'0');
+  const ring = $('#ring-fg');
+  const circ = 2*Math.PI*52; // ~326.7
+  const frac = state.timer.total>0?state.timer.remaining/state.timer.total:0;
+  ring.setAttribute('stroke-dasharray', circ.toFixed(2));
+  ring.setAttribute('stroke-dashoffset', (circ*(1-frac)).toFixed(2));
+  if(frac>0.5) ring.style.stroke='#43A047';
+  else if(frac>0.25) ring.style.stroke='#FFB300';
+  else ring.style.stroke='#E53935';
+}
+
+/* ---- IMPOSTOR REVEAL ---- */
+function showFinalReveal(opts){
+  const fromVote = !!(opts && opts.fromVote);
+  pauseTimer();
+  const r = state.round;
+  const card = $('#reveal-card');
+  const impEmoji = rand(IMP_EMOJIS);
+  const impNames = r.impostors.map(i=>state.players[i].name);
+  const daNames = r.doubleAgents.map(i=>state.players[i].name);
+  let hintLine = '';
+  if(state.difficulty==='hard'){ hintLine = r.word.hintHard; }
+  else { hintLine = r.word.hint; }
+  const daBox = daNames.length ? `
+    <div class="da-reveal-box">
+      <div class="da-lbl">🎭 Agente Duplo</div>
+      <div class="da-nm">${escapeHtml(daNames.join(' & ').toUpperCase())}</div>
+    </div>` : '';
+  card.innerHTML = `
+    <div class="reveal-emoji">${impEmoji}</div>
+    <div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-top:6px">${impNames.length>1?'Impostores eram':'O impostor era'}</div>
+    <div class="reveal-names">${escapeHtml(impNames.join(' & ').toUpperCase())}</div>
+    ${daBox}
+    <div class="reveal-word-lbl">A palavra era</div>
+    <div class="reveal-word">${r.word.w.toUpperCase()}</div>
+    <div class="reveal-meta">${r.category.emoji} ${r.category.name} • ${hintLine}</div>
+  `;
+  // resultado da votação (modo voto: pontuação já foi aplicada)
+  const vr = $('#vote-result-box');
+  if(fromVote){
+    const won = !!(opts && opts.groupCorrect);
+    const accusedNames = r.accused.map(i=>state.players[i].name);
+    vr.innerHTML = `
+      <div class="vote-result ${won?'won':'lost'}">
+        <div class="vr-lbl">${won ? '🎯 GRUPO ACERTOU!' : '🎭 IMPOSTOR ESCAPOU!'}</div>
+        <div class="vr-detail">Votado: ${escapeHtml(accusedNames.join(' & '))}</div>
+      </div>`;
+    vr.style.display = 'block';
+  } else {
+    vr.innerHTML = '';
+    vr.style.display = 'none';
+  }
+  fireConfetti();
+  playSound('impostor'); haptic([50,30,50]);
+  setTimeout(()=>playSound('confetti'), 400);
+  renderScoreboard();
+  showScreen('screen-reveal');
+  // modo clássico: pergunta se o grupo acertou (não-descartável — a rodada precisa ser pontuada)
+  if(!fromVote){
+    setTimeout(()=>{
+      if($('#screen-reveal').classList.contains('active')){
+        openModal('modal-correct', {dismissible:false});
+      }
+    }, 600);
+  }
+}
+
+function applyScore(groupCorrect){
+  const r = state.round;
+  // alvos do grupo: impostores E agentes duplos (DA conta como impostor)
+  const targets = new Set([...r.impostors, ...r.doubleAgents]);
+  const accusedSet = new Set(r.accused);
+  state.players.forEach((p,i)=>{
+    const isTarget = targets.has(i);
+    const st = statsFor(p.name);
+    if(!isTarget){
+      if(groupCorrect){
+        state.scores[p.name] = (state.scores[p.name]||0) + 1;
+        if(i===r.starterIndex) state.scores[p.name] += 1; // bônus de quem começou
+      } else {
+        state.scores[p.name] = (state.scores[p.name]||0) + 2;
+      }
+      // inocente acusado por engano (modo voto)
+      if(accusedSet.has(i)) st.timesAccusedWrong++;
+    } else {
+      if(!groupCorrect){ state.scores[p.name] = (state.scores[p.name]||0) + 3; }
+      if(groupCorrect) st.timesCaught++; else st.timesEscaped++;
+    }
+  });
+  renderScoreboard();
+  playSound(groupCorrect ? 'correct' : 'wrong'); haptic(20);
+  saveSettings();
+}
+
+// Modo voto: grupo acerta se acusou EXATAMENTE todos os alvos
+function applyVoteScore(){
+  const r = state.round;
+  const targets = new Set([...r.impostors, ...r.doubleAgents]);
+  const accusedAllTargets = r.accused.every(idx=>targets.has(idx));
+  const allFound = r.accused.length === targets.size;
+  const groupCorrect = accusedAllTargets && allFound;
+  applyScore(groupCorrect);
+  return groupCorrect;
+}
+
+function renderScoreboard(){
+  const list = $('#score-list');
+  list.innerHTML = '';
+  const sorted = [...state.players].map((p,i)=>({name:p.name, idx:i, pts:state.scores[p.name]||0})).sort((a,b)=>b.pts-a.pts);
+  sorted.forEach((row, rank)=>{
+    const c = colorFor(row.idx);
+    const medal = rank===0?'🥇':rank===1?'🥈':rank===2?'🥉':'  ';
+    const crown = (rank===0 && row.pts>0) ? '<div class="crown">👑</div>' : '';
+    const div = document.createElement('div');
+    div.className = 'score-row';
+    div.innerHTML = `
+      ${crown}
+      <div class="medal">${medal}</div>
+      <div class="player-chip" style="background:${c.bg};color:${c.text};width:26px;height:26px;font-size:11px">${row.idx+1}</div>
+      <div class="nm">${escapeHtml(row.name)}</div>
+      <div class="pts">${row.pts}</div>
+    `;
+    list.appendChild(div);
+  });
+}
+function resetScores(){
+  state.scores = {};
+  state.players.forEach(p=>state.scores[p.name]=0);
+  renderScoreboard();
+  saveSettings();
+  showToast('Placar zerado','success');
+  playSound('coin'); haptic(15);
+}
+
+/* ---- NEW ROUND ---- */
+function newRound(){
+  // nova palavra + novos papéis, mesmos jogadores & settings
+  const cats = CATEGORIES.filter(c=>state.selectedCategories.includes(c.id));
+  const cat = rand(cats);
+  state.round.category = cat;
+  state.round.word = rand(cat.words);
+  setupRoundRoles();
+  acquireWakeLock();
+  renderCardScreen();
+  showScreen('screen-card');
+  playSound('boot'); haptic(10);
+  saveSettings();
+}
+
+/* ============================================================
+   ESTATÍSTICAS DA SESSÃO
+   ============================================================ */
+function renderStats(){
+  const box = $('#stats-content');
+  const rows = state.players.map((p,i)=>({idx:i, name:p.name, st: state.stats[p.name] || emptyStats()}));
+  const totalRounds = Math.max(0, ...rows.map(r=>r.st.roundsPlayed));
+  const totalImp = rows.reduce((s,r)=>s+r.st.timesImpostor,0);
+  const totalDA = rows.reduce((s,r)=>s+r.st.timesDoubleAgent,0);
+  let html = `
+    <div class="stats-summary">
+      <div class="stats-chip"><div class="v">${totalRounds}</div><div class="l">Rodadas</div></div>
+      <div class="stats-chip"><div class="v">${totalImp}</div><div class="l">🕵️ Impostor</div></div>
+      <div class="stats-chip"><div class="v">${totalDA}</div><div class="l">🎭 Ag. Duplo</div></div>
+    </div>`;
+  if(totalRounds > 0){
+    const byImp = [...rows].sort((a,b)=>b.st.timesImpostor-a.st.timesImpostor)[0];
+    const byEsc = [...rows].sort((a,b)=>b.st.timesEscaped-a.st.timesEscaped)[0];
+    const bySus = [...rows].sort((a,b)=>b.st.timesAccusedWrong-a.st.timesAccusedWrong)[0];
+    if(byImp && byImp.st.timesImpostor>0){
+      const c = colorFor(byImp.idx);
+      html += `<div class="stats-highlight" style="background:${c.bg}"><span class="e">🕵️</span><div><div class="hl-lbl">Maior impostor</div><div class="hl-nm">${escapeHtml(byImp.name)}</div></div><div class="hl-detail">${byImp.st.timesImpostor}x</div></div>`;
+    }
+    if(byEsc && byEsc.st.timesEscaped>0){
+      const c = colorFor(byEsc.idx);
+      html += `<div class="stats-highlight" style="background:${c.bg}"><span class="e">🦊</span><div><div class="hl-lbl">Melhor escapista</div><div class="hl-nm">${escapeHtml(byEsc.name)}</div></div><div class="hl-detail">${byEsc.st.timesEscaped} fugas</div></div>`;
+    }
+    if(bySus && bySus.st.timesAccusedWrong>0){
+      const c = colorFor(bySus.idx);
+      html += `<div class="stats-highlight" style="background:${c.bg}"><span class="e">🤨</span><div><div class="hl-lbl">Cara suspeita</div><div class="hl-nm">${escapeHtml(bySus.name)}</div></div><div class="hl-detail">${bySus.st.timesAccusedWrong} acusações erradas</div></div>`;
+    }
+    rows.forEach(r=>{
+      const c = colorFor(r.idx);
+      html += `
+        <div class="stats-row">
+          <div class="player-chip" style="background:${c.bg};color:${c.text};width:30px;height:30px;font-size:12px">${r.idx+1}</div>
+          <div style="flex:1">
+            <div class="nm">${escapeHtml(r.name)}</div>
+            <div class="detail">🎮 ${r.st.roundsPlayed} • 🕵️ ${r.st.timesImpostor} • 🎭 ${r.st.timesDoubleAgent} • 🪤 ${r.st.timesCaught} • 🦊 ${r.st.timesEscaped}</div>
+          </div>
+        </div>`;
+    });
+  } else {
+    html += `<p class="center muted">Sem rodadas jogadas ainda — joga uma partida pra ver as estatísticas.</p>`;
+  }
+  box.innerHTML = html;
+}
+function resetStats(){
+  state.stats = {};
+  saveSettings();
+  renderStats();
+  showToast('Estatísticas zeradas','success');
+  playSound('coin'); haptic(15);
+}
+
+/* ============================================================
+   10) CARD HOLD-TO-REVEAL
+   ============================================================ */
+(function setupCardHold(){
+  const card = document.getElementById('card');
+  const bar = document.getElementById('hold-bar');
+  let holdTimer=null, animFrame=null, startTime=0, holding=false;
+  const HOLD_MS = 700;
+
+  function start(e){
+    // preventDefault sempre — bloqueia o mousedown sintético que o browser
+    // dispara depois do touch (causava hold fantasma + shake espúrio)
+    if(e.cancelable) e.preventDefault();
+    if(holding) return; // segundo dedo não reinicia o hold
+    if(state.round.revealed) {
+      // tap to flip back
+      flipBack(); return;
+    }
+    holding=true; startTime = performance.now();
+    bar.style.width='0%';
+    haptic(10);
+    function tick(){
+      if(!holding) return;
+      const elapsed = performance.now()-startTime;
+      const pct = Math.min(100, (elapsed/HOLD_MS)*100);
+      bar.style.width = pct+'%';
+      if(elapsed>=HOLD_MS){ doReveal(); return; }
+      animFrame = requestAnimationFrame(tick);
+    }
+    animFrame = requestAnimationFrame(tick);
+  }
+  function end(){
+    if(!holding) return;
+    holding=false;
+    if(animFrame) cancelAnimationFrame(animFrame);
+    if(!state.round.revealed){
+      // didn't reach
+      bar.style.transition='width .2s ease';
+      bar.style.width='0%';
+      card.classList.add('shake');
+      setTimeout(()=>card.classList.remove('shake'),320);
+      setTimeout(()=>{ bar.style.transition=''; },220);
+    }
+  }
+  function doReveal(){
+    holding=false; state.round.revealed=true;
+    if(!state.round.seen.includes(state.round.currentPlayer)) state.round.seen.push(state.round.currentPlayer);
+    card.classList.add('flipped');
+    bar.style.transition='width .2s ease';
+    bar.style.width='100%';
+    setTimeout(()=>{ bar.style.transition=''; bar.style.width='0%'; },300);
+    playSound('reveal'); haptic(30);
+  }
+  function flipBack(){
+    state.round.revealed=false;
+    card.classList.remove('flipped');
+    playSound('ui'); haptic(8);
+  }
+  card.addEventListener('touchstart', start, {passive:false});
+  card.addEventListener('touchend', end);
+  card.addEventListener('touchcancel', end);
+  card.addEventListener('mousedown', start);
+  card.addEventListener('mouseup', end);
+  card.addEventListener('mouseleave', end);
+})();
+
+/* ============================================================
+   11) CONFETTI
+   ============================================================ */
+function fireConfetti(){
+  const layer = document.getElementById('confetti-layer');
+  layer.innerHTML = '';
+  layer.style.display = 'block';
+  const colors = ['#FFD600','#FF6B6B','#4FC3F7','#81C784','#CE93D8','#FFB74D','#AAEE00','#F06292'];
+  for(let i=0;i<60;i++){
+    const piece = document.createElement('div');
+    piece.className='confetti-piece';
+    piece.style.left = (Math.random()*100)+'%';
+    piece.style.background = colors[i%colors.length];
+    piece.style.animationDelay = (Math.random()*0.8)+'s';
+    piece.style.animationDuration = (2.4 + Math.random()*1.8)+'s';
+    piece.style.transform = `rotate(${Math.random()*360}deg)`;
+    layer.appendChild(piece);
+  }
+  setTimeout(()=>{ layer.style.display='none'; }, 4500);
+}
+
+/* ============================================================
+   12) EVENT WIRING
+   ============================================================ */
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-action]');
+  if(!t) return;
+  const a = t.dataset.action;
+  // ui click sound for most actions
+  if(['go-setup','open-howto','close-modal','add-player','imp-inc','imp-dec','cat-all','cat-none','timer-toggle','timer-reset','go-home'].includes(a)){
+    playSound('ui'); haptic(8);
+  }
+  switch(a){
+    case 'go-setup': renderAllSetup(); showScreen('screen-setup'); break;
+    case 'go-home': showScreen('screen-home'); break;
+    case 'open-howto': openModal('modal-howto'); break;
+    case 'open-settings': renderSettings(); openModal('modal-settings'); break;
+    case 'open-stats': renderStats(); openModal('modal-stats'); break;
+    case 'reset-stats': resetStats(); break;
+    case 'replay-onboarding': closeAllModals(); openOnboarding(); break;
+    case 'close-modal': closeAllModals(); break;
+    case 'add-player': addPlayer(); break;
+    case 'imp-inc': state.impostorCount++; renderImpostor(); saveSettings(); break;
+    case 'imp-dec': state.impostorCount--; renderImpostor(); saveSettings(); break;
+    case 'cat-all': state.selectedCategories = CATEGORIES.map(c=>c.id); renderCategories(); saveSettings(); break;
+    case 'cat-none': state.selectedCategories = []; renderCategories(); saveSettings(); break;
+    case 'start-game': startGame(); break;
+    case 'next-player': nextPlayer(); break;
+    case 'prev-player': prevPlayer(); break;
+    case 'reveal-impostor-confirm':
+      // modo voto: o CTA leva pra votação em vez do reveal direto
+      if(state.voteMode && $('#screen-round').classList.contains('active')){
+        showVoteScreen();
+      } else {
+        openModal('modal-reveal-confirm');
+      }
+      break;
+    case 'reveal-impostor-yes': closeAllModals(); showFinalReveal(); break;
+    case 'vote-confirm': confirmVote(); break;
+    case 'vote-cancel': openModal('modal-vote-cancel'); break;
+    case 'vote-cancel-yes':
+      closeAllModals();
+      showScreen('screen-round'); // volta sem reiniciar o timer (continua pausado)
+      if(state.timerOn && state.timer.remaining>0) $('#timer-toggle-btn').textContent='▶ Retomar';
+      break;
+    case 'correct-yes': closeAllModals(); applyScore(true); showToast('+ pontos para o grupo!','success'); break;
+    case 'correct-no': closeAllModals(); applyScore(false); showToast('Impostor levou os pontos!','warning'); break;
+    case 'confirm-quit': openModal('modal-quit'); break;
+    case 'confirm-quit-yes': closeAllModals(); showScreen('screen-home'); break;
+    case 'new-round': newRound(); break;
+    case 'confirm-reset-score': openModal('modal-reset-score'); break;
+    case 'reset-score-yes': closeAllModals(); resetScores(); break;
+    case 'timer-toggle': toggleTimerCtrl(); break;
+    case 'timer-reset': resetTimer(); break;
+    case 'ob-next': obNext(); break;
+    case 'ob-skip': closeOnboarding(); break;
+  }
+});
+
+// SETUP — toggles & sliders
+$('#diff-pills').addEventListener('click', e=>{
+  const p = e.target.closest('.pill'); if(!p) return;
+  state.difficulty = p.dataset.diff; renderDiff();
+  playSound('ui'); haptic(8); saveSettings();
+});
+$('#timer-toggle').addEventListener('click', ()=>{
+  state.timerOn = !state.timerOn; renderTimerSettings();
+  playSound('ui'); haptic(8); saveSettings();
+});
+$('#timer-slider').addEventListener('input', e=>{
+  state.timerMinutes = parseInt(e.target.value,10);
+  $('#timer-slider-val').textContent = state.timerMinutes;
+  saveSettings();
+});
+$('#new-player-input').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){ e.preventDefault(); addPlayer(); }
+});
+// modos especiais
+$('#spy-toggle').addEventListener('click', ()=>{
+  state.spyMode = !state.spyMode; renderSpecialModes();
+  playSound('ui'); haptic(8); saveSettings();
+});
+$('#da-toggle').addEventListener('click', ()=>{
+  state.doubleAgentMode = !state.doubleAgentMode; renderSpecialModes();
+  playSound('ui'); haptic(8); saveSettings();
+});
+$('#vote-toggle').addEventListener('click', ()=>{
+  state.voteMode = !state.voteMode; renderSpecialModes();
+  playSound('ui'); haptic(8); saveSettings();
+});
+// settings (modal ⚙)
+$('#mode-pills').addEventListener('click', e=>{
+  const p = e.target.closest('.pill'); if(!p) return;
+  state.mode = p.dataset.mode; renderMode();
+  syncMusic();
+  playSound('ui'); haptic(8); saveSettings();
+});
+$('#music-toggle').addEventListener('click', ()=>{
+  state.musicOn = !state.musicOn; renderSettings();
+  syncMusic();
+  playSound('ui'); haptic(8); saveSettings();
+});
+$('#pack-pills').addEventListener('click', e=>{
+  const p = e.target.closest('.pill'); if(!p) return;
+  state.soundPack = p.dataset.pack; renderSettings();
+  playSound('reveal'); haptic(8); saveSettings(); // preview do pack escolhido
+});
+
+function renderSpecialModes(){
+  $('#spy-toggle').classList.toggle('on', state.spyMode);
+  $('#da-toggle').classList.toggle('on', state.doubleAgentMode);
+  $('#vote-toggle').classList.toggle('on', state.voteMode);
+  // spy só faz sentido com 2+ impostores
+  $('#spy-row').classList.toggle('visible', state.impostorCount > 1);
+}
+function renderSettings(){
+  renderMode();
+  $('#music-toggle').classList.toggle('on', state.musicOn);
+  $$('#pack-pills .pill').forEach(p=>p.classList.toggle('active', p.dataset.pack===state.soundPack));
+  $('#pack-desc').textContent = {
+    classic:'Som polido padrão.',
+    retro:'8-bit, square waves estilo NES.',
+    cinema:'Orquestral dramático, attacks longos.',
+    cyber:'Synthwave anos 80, saws detuned.',
+  }[state.soundPack];
+}
+
+/* ============================================================
+   ONBOARDING — primeira abertura
+   ============================================================ */
+const ob = { page: 0, COUNT: 4 };
+function openOnboarding(){
+  ob.page = 0;
+  renderOnboarding();
+  document.getElementById('onboarding').classList.add('open');
+}
+function closeOnboarding(){
+  document.getElementById('onboarding').classList.remove('open');
+  state.hasSeenOnboarding = true;
+  saveSettings();
+}
+function obNext(){
+  playSound('whoosh'); haptic(10);
+  if(ob.page < ob.COUNT-1){
+    ob.page++;
+    renderOnboarding();
+  } else {
+    playSound('boot');
+    closeOnboarding();
+  }
+}
+function renderOnboarding(){
+  $$('#onboarding .ob-slide').forEach(s=>s.classList.toggle('active', parseInt(s.dataset.ob,10)===ob.page));
+  const dots = $('#ob-dots');
+  dots.innerHTML = '';
+  for(let i=0;i<ob.COUNT;i++){
+    const d = document.createElement('div');
+    d.className = 'ob-dot'+(i===ob.page?' active':'');
+    dots.appendChild(d);
+  }
+  $('#ob-next').textContent = ob.page < ob.COUNT-1 ? 'PRÓXIMO ▶' : 'COMEÇAR! 🚀';
+}
+
+/* ============================================================
+   13) INITIAL RENDER
+   ============================================================ */
+function renderAllSetup(){
+  renderPlayerList();
+  renderImpostor();
+  renderSpecialModes();
+  renderDiff();
+  renderTimerSettings();
+  renderCategories();
+}
+renderAllSetup();
+renderSettings();
+renderScoreboard();
+if(!state.hasSeenOnboarding) openOnboarding();
+
+// kick audio context awake on first user interaction (e liga a música ambiente)
+window.addEventListener('touchstart', function once(){ ensureAudio(); music.playing=null; syncMusic(); window.removeEventListener('touchstart', once); }, {passive:true, once:true});
+window.addEventListener('mousedown', function once(){ ensureAudio(); music.playing=null; syncMusic(); window.removeEventListener('mousedown', once); }, {passive:true, once:true});
+// home começa com música ambiente (toca a partir do primeiro toque)
+music.want = 'ambient';
+
+// prevent pinch zoom
+document.addEventListener('gesturestart', e=>e.preventDefault());
+
+/* ============================================================
+   14) SCREEN WAKE LOCK — tela não apaga durante a partida
+   ============================================================ */
+let wakeLock = null, wantWakeLock = false;
+async function acquireWakeLock(){
+  wantWakeLock = true;
+  try{
+    if('wakeLock' in navigator && !wakeLock){
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', ()=>{ wakeLock = null; });
+    }
+  }catch(e){ wakeLock = null; }
+}
+function releaseWakeLock(){
+  wantWakeLock = false;
+  if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock = null; }
+}
+// o SO solta o lock quando o app vai pra background — readquire ao voltar
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='visible' && wantWakeLock && !wakeLock) acquireWakeLock();
+});
+
+/* ============================================================
+   15) SERVICE WORKER — modo offline (PWA)
+   ============================================================ */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{ /* file:// ou browser sem suporte */ });
+  });
+}
+</script>
+</body>
+</html>
